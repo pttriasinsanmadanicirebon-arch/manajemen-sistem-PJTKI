@@ -1,0 +1,134 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "System user profile and permissions",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["SUPER_ADMIN", "KEPALA_CABANG", "ADMIN_OPERASIONAL", "STAFF_FINANCE", "SPONSOR"] },
+        "cabang": { "type": "string" }
+      },
+      "required": ["uid", "email", "name", "role"]
+    },
+    "SystemSettings": {
+      "title": "System Settings",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "companyName": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["companyName", "updatedAt"]
+    },
+    "CPMI": {
+      "title": "CPMI (Calon Pekerja Migran Indonesia)",
+      "description": "Indonesian Migrant Worker Candidate profile",
+      "type": "object",
+      "properties": {
+        "regNo": { "type": "string" },
+        "name": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "nik": { "type": "string" },
+        "passportNo": { "type": "string" },
+        "birthPlace": { "type": "string" },
+        "birthDate": { "type": "string" },
+        "gender": { "type": "string", "enum": ["Laki-laki", "Perempuan"] },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "familyContact": { "type": "string" },
+        "education": { "type": "string" },
+        "marriageStatus": { "type": "string" },
+        "targetCountry": { "type": "string" },
+        "jobType": { "type": "string" },
+        "agency": { "type": "string" },
+        "sponsor": { "type": "string" },
+        "sponsorId": { "type": "string" },
+        "branch": { "type": "string" },
+        "registrationDate": { "type": "string" },
+        "flightDate": { "type": "string" },
+        "status": { "type": "string" },
+        "note": { "type": "string" },
+        "bottleneck": { "type": "string" },
+        "picId": { "type": "string" },
+        "completeness": { "type": "object" },
+        "totalDebt": { "type": "number" },
+        "unpaidProcessFees": { "type": "number" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["regNo", "name", "nik", "status", "createdBy"]
+    },
+    "Document": {
+      "title": "CPMI Document",
+      "description": "Digital dossier file",
+      "type": "object",
+      "properties": {
+        "cpmiId": { "type": "string" },
+        "type": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "fileName": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Verified", "Rejected"] },
+        "note": { "type": "string" },
+        "uploadedAt": { "type": "string", "format": "date-time" },
+        "verifiedAt": { "type": "string", "format": "date-time" },
+        "verifiedBy": { "type": "string" }
+      },
+      "required": ["cpmiId", "type", "fileUrl", "status"]
+    },
+    "Transaction": {
+      "title": "Financial Transaction",
+      "description": "Cash flow record",
+      "type": "object",
+      "properties": {
+        "cpmiId": { "type": "string" },
+        "sponsorId": { "type": "string" },
+        "type": { "type": "string", "enum": ["INCOME", "EXPENSE", "DEBT", "CREDIT"] },
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string" },
+        "refNo": { "type": "string" },
+        "note": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
+        "isKwitansiGenerated": { "type": "boolean" },
+        "approvedBy": { "type": "string" },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["type", "category", "amount", "date", "status", "createdBy"]
+    },
+    "Sponsor": {
+      "title": "Sponsor / Marketing",
+      "description": "Field marketing representative",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "region": { "type": "string" },
+        "phone": { "type": "string" },
+        "cpmiCount": { "type": "number" },
+        "unpaidFees": { "type": "number" },
+        "paidFees": { "type": "number" },
+        "totalDebt": { "type": "number" },
+        "performanceScore": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "region", "phone"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "UserProfile", "description": "User profile data" },
+    "settings": { "schema": "SystemSettings", "description": "Global config" },
+    "cpmi": { "schema": "CPMI", "description": "CPMI profiles" },
+    "documents": { "schema": "Document", "description": "CPMI digital files" },
+    "transactions": { "schema": "Transaction", "description": "Finance records" },
+    "sponsors": { "schema": "Sponsor", "description": "Marketing agents" }
+  }
+}

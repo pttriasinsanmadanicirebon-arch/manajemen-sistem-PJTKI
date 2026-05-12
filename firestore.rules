@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Schema Validations
+    function isValidCPMI(data) {
+      return data.keys().hasAll(['regNo', 'name', 'nik', 'status', 'createdBy'])
+        && data.regNo is string && data.regNo.size() > 0
+        && data.name is string && data.name.size() > 0
+        && data.nik is string && data.nik.size() == 16
+        && data.status is string
+        && data.createdBy == request.auth.uid;
+    }
+
+    function isValidDocument(data) {
+      return data.keys().hasAll(['cpmiId', 'type', 'fileUrl', 'status'])
+        && data.cpmiId is string
+        && data.type is string
+        && data.fileUrl is string
+        && data.status in ['Pending', 'Verified', 'Rejected'];
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['type', 'category', 'amount', 'date', 'status', 'createdBy'])
+        && data.type in ['INCOME', 'EXPENSE', 'DEBT', 'CREDIT']
+        && data.category is string
+        && data.amount is number
+        && data.date is string
+        && data.status in ['PENDING', 'APPROVED', 'REJECTED']
+        && data.createdBy == request.auth.uid;
+    }
+
+    function isValidSponsor(data) {
+      return data.keys().hasAll(['name', 'region', 'phone'])
+        && data.name is string && data.name.size() > 0
+        && data.region is string
+        && data.phone is string;
+    }
+
+    function isValidSettings(data) {
+      return data.keys().hasAll(['companyName', 'updatedAt'])
+        && data.companyName is string && data.companyName.size() > 0;
+    }
+
+    // -------------------------------------------------------------------------
+    // Rules
+    // -------------------------------------------------------------------------
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Settings Collection
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidSettings(incoming());
+    }
+
+    // CPMI Collection
+    match /cpmi/{cpmiId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidCPMI(incoming());
+      allow update: if isSignedIn(); // Add more granular checks if needed
+      allow delete: if false;
+    }
+
+    // Documents Collection (Top-level)
+    match /documents/{docId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidDocument(incoming());
+      allow update: if isSignedIn();
+      allow delete: if false;
+    }
+
+    // Transactions Collection (Top-level)
+    match /transactions/{txId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidTransaction(incoming());
+      allow update: if isSignedIn();
+      allow delete: if false;
+    }
+
+    // Sponsors Collection
+    match /sponsors/{sponsorId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidSponsor(incoming());
+      allow update: if isSignedIn();
+      allow delete: if false;
+    }
+  }
+}
