@@ -44,6 +44,7 @@ interface CPMIDetailProps {
   onUploadDocument: (file: File, type: string) => void;
   onAddTransaction: () => void;
   onBack: () => void;
+  systemSettings: any;
 }
 
 export const CPMIDetail: React.FC<CPMIDetailProps> = ({ 
@@ -54,7 +55,8 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
   onUpdateCompleteness,
   onUploadDocument,
   onAddTransaction,
-  onBack 
+  onBack,
+  systemSettings
 }) => {
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -145,6 +147,10 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
     <div className="space-y-8 animate-in fade-in duration-500 pb-24 dark:text-slate-200">
       {/* PRINT ONLY BIODATA - Optimized for the requested layout */}
       <div className="hidden print:block bg-white text-black p-0 m-0" style={{ fontSize: '10px' }}>
+        <div className="text-center mb-8 pb-4 border-b-4 border-double border-black">
+           <h2 className="text-xl font-bold uppercase">{systemSettings?.companyName || 'PT TRIAS INSAN MADANI'}</h2>
+           <p className="text-[10px] font-bold tracking-[0.2em] mt-1">SISTEM INTEGRASI PENEMPATAN PEKERJA MIGRAN INDONESIA</p>
+        </div>
         <div className="flex gap-6 mb-6">
           <div className="w-32 h-40 shrink-0 overflow-hidden rounded-lg border">
             {cpmi.photoUrl ? (
@@ -373,9 +379,9 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8 no-print">
-        {/* Left Column: CPMI Info & Financials */}
-        <section className="w-full lg:w-3/5 flex flex-col gap-8">
+      <div className="flex flex-col gap-8 no-print">
+        {/* Left Column: CPMI Info & Financials - Now Full Width */}
+        <section className="w-full flex flex-col gap-8">
           {/* Fee Tracking Dashboard */}
           <Card className="rounded-[2.5rem] border-none bg-slate-900 dark:bg-slate-900/50 shadow-2xl shadow-blue-900/20 overflow-hidden ring-1 ring-white/5">
             <CardHeader className="px-10 py-8 border-b border-white/5">
@@ -510,42 +516,6 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
               </div>
             </CardContent>
           </Card>
-        </section>
-
-        {/* Right Column: Digital Dossier */}
-        <section className="w-full lg:w-2/5 flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-2">Digital Dossier (Berkas Digital)</h3>
-            <div className="flex items-center space-x-2">
-               <Badge variant="outline" className="text-[9px] font-bold border-slate-200 text-slate-400">{documents.length}/{requiredDocTypes.length} Berkas</Badge>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
-            {requiredDocTypes.map(type => {
-              const doc = documents.find(d => d.type === type);
-              return (
-                <DocumentItem 
-                  key={type}
-                  type={type}
-                  document={doc}
-                  onUpload={(file) => onUploadDocument(file, type)}
-                />
-              );
-            })}
-          </div>
-
-          {cpmi.notePusat && (
-            <div className="mt-auto flex flex-col gap-3 rounded-2xl bg-blue-50 p-6 border border-blue-100 shadow-sm shadow-blue-50">
-              <div className="flex items-center gap-2">
-                <AlertTriangle size={16} className="text-blue-700" />
-                <p className="text-[10px] font-extrabold text-blue-700 uppercase tracking-widest">Catatan Admin Pusat</p>
-              </div>
-              <p className="text-xs leading-relaxed text-blue-900 font-medium italic">
-                "{cpmi.notePusat}"
-              </p>
-            </div>
-          )}
         </section>
       </div>
 

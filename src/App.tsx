@@ -271,6 +271,7 @@ export default function App() {
             setIsTransactionModalOpen(true);
           }}
           onBack={() => setSelectedCPMI(null)}
+          systemSettings={systemSettings}
         />
       ) : (
         <>
@@ -342,6 +343,7 @@ export default function App() {
         onOpenChange={setIsCPMIModalOpen} 
         onSubmit={handleAddCPMI}
         initialData={editingCPMI}
+        systemSettings={systemSettings}
       />
 
       <TransactionModal 

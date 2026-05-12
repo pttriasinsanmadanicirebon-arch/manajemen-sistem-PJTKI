@@ -53,8 +53,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
       {/* Sidebar Desktop */}
       <aside className="w-64 bg-slate-900 dark:bg-black/40 dark:backdrop-blur-xl flex flex-col hidden lg:flex text-slate-300 shrink-0 border-r dark:border-slate-800 no-print">
         <div className="p-8 mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-xl shadow-blue-900/40">
-             {systemSettings?.companyName?.charAt(0) || 'P'}
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-xl shadow-blue-900/40 overflow-hidden">
+             {systemSettings?.logoUrl ? (
+               <img src={systemSettings.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+             ) : (
+               systemSettings?.companyName?.charAt(0) || 'P'
+             )}
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-black tracking-tight text-white uppercase leading-tight">
@@ -118,7 +122,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
                    {navItems.find(i => i.id === activeTab)?.label}
                  </h1>
                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">
-                   TIM Management Pro &bull; {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
+                   {systemSettings?.companyName || 'TIM Management Pro'} &bull; {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
                  </p>
               </div>
            </div>

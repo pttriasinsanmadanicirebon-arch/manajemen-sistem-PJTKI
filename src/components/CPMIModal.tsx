@@ -21,7 +21,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Checkbox } from './ui/checkbox';
 import { Textarea } from './ui/textarea';
 import { ThemeToggle } from './ThemeToggle';
-import { Users, Camera, Loader2, ChevronRight, ChevronLeft, Save } from 'lucide-react';
+import { Users, Camera, Loader2, ChevronRight, ChevronLeft, Save, Upload, Eye } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, storage } from '../lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -32,9 +32,10 @@ interface CPMIModalProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: Partial<CPMI>) => void;
   initialData?: CPMI;
+  systemSettings: SystemSettings | null;
 }
 
-export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubmit, initialData }) => {
+export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubmit, initialData, systemSettings }) => {
   const [user] = useAuthState(auth);
   const [formData, setFormData] = useState<Partial<CPMI>>({
     name: '',
@@ -94,6 +95,44 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
   const [activeSection, setActiveSection] = useState<'pribadi' | 'alamat' | 'penempatan' | 'pengalaman' | 'administrasi'>('pribadi');
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const toastId = toast.loading(`Mengunggah ${field}...`);
+    try {
+      const storageRef = ref(storage, `cpmi-docs/${formData.regNo || 'temp'}/${field}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      
+      setFormData(prev => ({ 
+        ...prev, 
+        [field]: url,
+        completeness: {
+          ...prev.completeness,
+          [field.replace('Url', '')]: true
+        }
+      }));
+      toast.success(`${field} berhasil diunggah`, { id: toastId });
+    } catch (error) {
+      toast.error(`Gagal mengunggah ${field}`, { id: toastId });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const REQUIREMENTS = [
+    { id: 'ktpUrl', label: 'KTP (Asli / Scan)' },
+    { id: 'kkUrl', label: 'Kartu Keluarga' },
+    { id: 'akteUrl', label: 'Akte Kelahiran' },
+    { id: 'ijazahUrl', label: 'Ijazah Terakhir' },
+    { id: 'suratIjinUrl', label: 'Surat Ijin Keluarga' },
+    { id: 'pasporUrl', label: 'Paspor (Jika Ada)' },
+    { id: 'mcuUrl', label: 'Hasil Medical / MCU' },
+    { id: 'skckUrl', label: 'Berkas Pendukung Lainnya' },
+  ];
 
   const handleWorkExpChange = (index: number, field: keyof WorkExperience, value: string) => {
     const newExps = [...(formData.workExperiences || [])];
@@ -269,8 +308,8 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
              </div>
           </div>
 
-          {/* Mobile Header Navigation - Only on mobile */}
-          <div className="md:hidden flex bg-slate-900 p-4 justify-around items-center">
+          {/* Mobile Header Navigation - Only on mobile - Optimized */}
+          <div className="md:hidden flex bg-slate-900 px-2 py-3 justify-around items-center overflow-x-auto scrollbar-hide border-b border-white/5 gap-1">
              <MobileStepButton active={activeSection === 'pribadi'} label="01" onClick={() => setActiveSection('pribadi')} />
              <MobileStepButton active={activeSection === 'alamat'} label="02" onClick={() => setActiveSection('alamat')} />
              <MobileStepButton active={activeSection === 'penempatan'} label="03" onClick={() => setActiveSection('penempatan')} />
@@ -335,23 +374,23 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-8 md:gap-y-6">
                              <FormGroup className="md:col-span-2" label="Nama Lengkap (Sesuai KTP / Passport)" required>
-                               <Input 
-                                 value={formData.name || ''} 
-                                 onChange={(e) => setFormData({...formData, name: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-slate-800 dark:text-white"
-                                 placeholder="Nama Lengkap"
-                                 required
-                               />
+                                 <Input 
+                                   value={formData.name || ''} 
+                                   onChange={(e) => setFormData({...formData, name: e.target.value})} 
+                                   className="rounded-xl md:rounded-2xl h-11 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-slate-800 dark:text-white px-5"
+                                   placeholder="Nama Lengkap"
+                                   required
+                                 />
                              </FormGroup>
                              <FormGroup label="NIK / No. KTP" required>
-                               <Input 
-                                 value={formData.nik || ''} 
-                                 onChange={(e) => setFormData({...formData, nik: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-mono text-slate-700 dark:text-slate-300"
-                                 placeholder="NIK / No. KTP"
-                                 maxLength={16}
-                                 required
-                               />
+                                 <Input 
+                                   value={formData.nik || ''} 
+                                   onChange={(e) => setFormData({...formData, nik: e.target.value})} 
+                                   className="rounded-xl md:rounded-2xl h-11 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-mono text-slate-700 dark:text-slate-300 px-5"
+                                   placeholder="NIK / No. KTP"
+                                   maxLength={16}
+                                   required
+                                 />
                              </FormGroup>
                              <FormGroup label="Jenis Kelamin" required>
                                 <Select value={formData.gender} onValueChange={(v: any) => setFormData({...formData, gender: v})}>
@@ -664,17 +703,71 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                     {activeSection === 'administrasi' && (
                        <section className="space-y-6 md:space-y-8 pb-10">
                           <div className="bg-slate-50 dark:bg-slate-800/50 p-6 md:p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700">
-                             <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">Kelengkapan Berkas Fisik</h4>
+                             <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">Upload Berkas Digital (PDF / JPG)</h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {REQUIREMENTS.map((req) => {
+                                  const fileUrl = (formData as any)[req.id];
+                                  return (
+                                    <div key={req.id} className="flex flex-col gap-3 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:border-blue-500/50">
+                                       <div className="flex items-center justify-between">
+                                          <Label htmlFor={`modal-${req.id}`} className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase cursor-pointer">{req.label}</Label>
+                                          {fileUrl ? (
+                                            <div className="flex items-center gap-2">
+                                               <span className="text-[10px] font-bold text-emerald-600 uppercase">Ready</span>
+                                               <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                                            </div>
+                                          ) : (
+                                            <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                                          )}
+                                       </div>
+                                       
+                                       <div className="flex items-center gap-2">
+                                          <div className="flex-1">
+                                             <label className={`flex h-11 items-center justify-center rounded-xl border-2 border-dashed transition-all cursor-pointer ${fileUrl ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                                                <div className="flex items-center gap-2 px-4">
+                                                   <Upload size={14} className={fileUrl ? 'text-emerald-600' : 'text-slate-400'} />
+                                                   <span className={`text-[10px] font-bold uppercase tracking-tight ${fileUrl ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'}`}>
+                                                      {fileUrl ? 'Ganti File' : 'Pilih File'}
+                                                   </span>
+                                                </div>
+                                                <input 
+                                                   type="file" 
+                                                   className="hidden" 
+                                                   accept=".pdf,image/*" 
+                                                   onChange={(e) => handleFileUpload(e, req.id)} 
+                                                />
+                                             </label>
+                                          </div>
+                                          {fileUrl && (
+                                            <Button 
+                                              type="button" 
+                                              variant="outline" 
+                                              size="icon" 
+                                              className="h-11 w-11 rounded-xl border-slate-200 dark:border-slate-800"
+                                              onClick={() => window.open(fileUrl, '_blank')}
+                                            >
+                                              <Eye size={16} className="text-blue-600" />
+                                            </Button>
+                                          )}
+                                       </div>
+                                    </div>
+                                   );
+                                })}
+                             </div>
+                          </div>
+
+                          <div className="bg-slate-50 dark:bg-slate-800/50 p-6 md:p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700">
+                             <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">Kelengkapan Tambahan (Physical Check)</h4>
                              <div className="grid grid-cols-2 gap-4">
-                                {Object.entries(formData.completeness || {}).map(([key, value]) => (
-                                   <div key={key} className="flex items-center space-x-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm transition-all hover:border-blue-500/50">
+                                {['Paspor Berangkat', 'Visa Kerja', 'Tiket Pesawat', 'Asuransi BPJS'].map((key) => (
+                                   <div key={key} className="flex items-center space-x-3 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
                                       <Checkbox 
                                         id={`modal-${key}`} 
-                                        checked={value as boolean} 
+                                        checked={(formData.completeness as any)?.[key] || false} 
                                         onCheckedChange={(v) => setFormData({
                                           ...formData, 
                                           completeness: { ...formData.completeness, [key]: !!v }
-                                        })}
+                                        } as any)}
                                         className="rounded-lg h-6 w-6 border-slate-300 dark:border-slate-700 data-[state=checked]:bg-blue-600"
                                       />
                                       <Label htmlFor={`modal-${key}`} className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase cursor-pointer">{key}</Label>
@@ -687,7 +780,7 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                              <Textarea 
                                value={formData.note || ''} 
                                onChange={(e) => setFormData({...formData, note: e.target.value})} 
-                               className="rounded-[2rem] min-h-[150px] bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 p-6 text-slate-700 dark:text-slate-300"
+                               className="rounded-[2rem] min-h-[120px] bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 p-6 text-slate-700 dark:text-slate-300"
                                placeholder="Contoh: Menunggu tanda tangan suami, Foto kurang jelas, dll"
                              />
                           </FormGroup>
@@ -774,12 +867,12 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
 const MobileStepButton = ({ active, label, onClick }: { active: boolean, label: string, onClick: () => void }) => (
   <button 
     onClick={onClick}
-    className={`flex-1 flex flex-col items-center gap-1 py-3 transition-all ${active ? 'opacity-100' : 'opacity-40'}`}
+    className={`flex-1 flex flex-col items-center gap-1.5 py-2 transition-all ${active ? 'opacity-100 scale-105' : 'opacity-30 scale-95'}`}
   >
-     <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-lg ${active ? 'bg-blue-600 text-white shadow-blue-900/40' : 'bg-slate-800 text-slate-500'}`}>
+     <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] shadow-lg transition-all ${active ? 'bg-blue-600 text-white shadow-blue-900/40' : 'bg-slate-800 text-slate-400'}`}>
         {label}
      </div>
-     <span className={`text-[8px] font-bold uppercase tracking-tighter ${active ? 'text-blue-400' : 'text-slate-600'}`}>
+     <span className={`text-[6.5px] font-bold uppercase tracking-tight ${active ? 'text-blue-400' : 'text-slate-500'}`}>
         {label === '01' ? 'Pribadi' : label === '02' ? 'Alamat' : label === '03' ? 'Tujuan' : label === '04' ? 'History' : 'Berkas'}
      </span>
   </button>

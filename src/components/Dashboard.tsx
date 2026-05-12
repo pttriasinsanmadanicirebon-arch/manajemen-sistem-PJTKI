@@ -64,8 +64,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#64748b', '#06b6d4', '#ec4899', '#2563eb'];
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="space-y-6 md:space-y-10 animate-in fade-in duration-500 pb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard 
           title="Total CPMI Aktif" 
           value={stats.total} 
@@ -97,25 +97,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 rounded-[2.5rem] border-none shadow-xl shadow-slate-200/40 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900/50 ring-1 ring-slate-200/50 dark:ring-slate-800 backdrop-blur-xl">
-          <CardHeader className="bg-transparent border-b border-slate-50 dark:border-slate-800 px-8 py-8 flex flex-row items-center justify-between">
+        <Card className="lg:col-span-2 rounded-[1.5rem] md:rounded-[2.5rem] border-none shadow-lg md:shadow-xl shadow-slate-200/40 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900/50 ring-1 ring-slate-200/50 dark:ring-slate-800 backdrop-blur-xl">
+          <CardHeader className="bg-transparent border-b border-slate-50 dark:border-slate-800 px-6 py-6 md:px-8 md:py-8 flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Analisa Arus Kas</CardTitle>
-              <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider opacity-60">Visualisasi 6 Bulan Terakhir</p>
+              <CardTitle className="text-[10px] md:text-sm font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400 dark:text-slate-500">Analisa Arus Kas</CardTitle>
+              <p className="text-[8px] md:text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider opacity-60">Visualisasi 6 Bulan Terakhir</p>
             </div>
-            <div className="flex gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-lg shadow-blue-500/40"></div>
-                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">In</span>
+            <div className="flex gap-3 md:gap-6">
+              <div className="flex items-center gap-1.5 md:gap-2">
+                <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-blue-600"></div>
+                <span className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">In</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 shadow-lg shadow-slate-500/20"></div>
-                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Out</span>
+              <div className="flex items-center gap-1.5 md:gap-2">
+                <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                <span className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Out</span>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-8">
-            <div className="h-[350px] w-full">
+          <CardContent className="p-4 md:p-8">
+            <div className="h-[250px] md:h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={financialsMonthly} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                   <defs>
@@ -328,18 +328,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
 };
 
 const StatCard = ({ title, value, subtitle, icon, color }: { title: string, value: string | number, subtitle: string, icon: React.ReactNode, color: string }) => (
-  <Card className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/40 dark:shadow-black/40 ring-1 ring-slate-100 dark:ring-slate-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden group">
-    <CardContent className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 ${color}`}>
-          {icon}
+  <Card className="rounded-[1.5rem] md:rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-lg md:shadow-xl shadow-slate-200/40 dark:shadow-black/40 ring-1 ring-slate-100 dark:ring-slate-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden group">
+    <CardContent className="p-4 md:p-8">
+      <div className="flex items-center justify-between mb-3 md:mb-6">
+        <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 ${color}`}>
+          {React.cloneElement(icon as React.ReactElement, { size: 18 })}
         </div>
         <div className="text-right">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{title}</p>
-          <p className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-wide mt-0.5">{subtitle}</p>
+          <p className="text-[7px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400 dark:text-slate-500">{title}</p>
         </div>
       </div>
-      <h3 className="text-3xl font-black font-display tabular-nums text-slate-900 dark:text-white tracking-tight leading-none">{value}</h3>
+      <h3 className="text-lg md:text-3xl font-black font-display tabular-nums text-slate-900 dark:text-white tracking-tight leading-none">{value}</h3>
+      <p className="text-[7px] md:text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-wide mt-2">{subtitle}</p>
     </CardContent>
   </Card>
 );
@@ -352,16 +352,16 @@ const ActionCard = ({ title, subtitle, icon, onClick, color }: { title: string, 
   };
 
   return (
-    <button onClick={onClick} className="flex items-center gap-5 p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] hover:border-blue-500/50 dark:hover:border-blue-500/40 shadow-xl shadow-slate-200/40 dark:shadow-black/40 transition-all group text-left w-full hover:-translate-y-1">
-       <div className={`w-16 h-16 rounded-[1.5rem] ${colorClasses[color]} flex items-center justify-center shadow-2xl transition-all group-hover:scale-110 group-hover:rotate-3`}>
-          {icon}
+    <button onClick={onClick} className="flex items-center gap-3 md:gap-5 p-4 md:p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl md:rounded-[2rem] hover:border-blue-500/50 dark:hover:border-blue-500/40 shadow-lg md:shadow-xl shadow-slate-200/40 dark:shadow-black/40 transition-all group text-left w-full hover:-translate-y-1">
+       <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] ${colorClasses[color]} flex items-center justify-center shadow-2xl transition-all group-hover:scale-110 group-hover:rotate-3 shrink-0`}>
+          {React.cloneElement(icon as React.ReactElement, { size: 20 })}
        </div>
-       <div className="flex-1">
-          <h4 className="font-black text-slate-800 dark:text-slate-100 text-sm uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{title}</h4>
-          <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5">{subtitle}</p>
+       <div className="flex-1 min-w-0">
+          <h4 className="font-black text-slate-800 dark:text-slate-100 text-[11px] md:text-sm uppercase tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{title}</h4>
+          <p className="text-[9px] md:text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-0.5 truncate">{subtitle}</p>
        </div>
-       <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all">
-          <ChevronRight size={20} className="text-slate-400" />
+       <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all shrink-0">
+          <ChevronRight size={16} className="text-slate-400" />
        </div>
     </button>
   );

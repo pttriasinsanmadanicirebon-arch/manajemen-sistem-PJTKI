@@ -74,45 +74,45 @@ export const CPMIList: React.FC<CPMIListProps> = ({ cpmiList, onAdd, onEdit, onV
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 px-2">
-        <div className="space-y-2">
-           <div className="flex items-center gap-3">
-              <div className="w-1.5 h-8 bg-blue-600 rounded-full"></div>
-              <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white font-display uppercase">Database CPMI</h2>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 px-1">
+        <div className="space-y-1">
+           <div className="flex items-center gap-2">
+              <div className="w-1 md:w-1.5 h-6 md:h-8 bg-blue-600 rounded-full"></div>
+              <h2 className="text-2xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white font-display uppercase leading-tight">Database CPMI</h2>
            </div>
-           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em] ml-5">Integrasi Data Calon Pekerja &bull; Global Ecosystem</p>
+           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase text-[8px] md:text-[10px] tracking-widest ml-3 md:ml-5">Integrasi Data Calon Pekerja &bull; Global Ecosystem</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
            <Button 
              variant="outline" 
              onClick={handleExportExcel}
-             className="flex-1 md:flex-none border-slate-200 dark:border-slate-800 dark:bg-slate-900/50 rounded-2xl h-16 px-8 font-black text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
+             className="flex-1 md:flex-none border-slate-200 dark:border-slate-800 dark:bg-slate-900/50 rounded-xl md:rounded-2xl h-12 md:h-16 px-4 md:px-8 font-black text-[9px] md:text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-50 dark:hover:bg-slate-800"
            >
-              <Download size={20} className="mr-3 text-blue-600" />
+              <Download size={16} className="mr-2 md:mr-3 text-blue-600" />
               Export Excel
            </Button>
-           <Button onClick={onAdd} className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-10 h-16 shadow-2xl shadow-blue-900/30 transition-all active:scale-95">
-             <Plus size={22} className="mr-3 stroke-[3]" />
-             <span className="font-black uppercase tracking-widest text-xs">Registrasi Baru</span>
+           <Button onClick={onAdd} className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-500 text-white rounded-xl md:rounded-2xl px-6 md:px-10 h-12 md:h-16 shadow-lg md:shadow-2xl shadow-blue-900/30 transition-all active:scale-95">
+             <Plus size={18} className="mr-2 md:mr-3 stroke-[3]" />
+             <span className="font-black uppercase tracking-widest text-[9px] md:text-xs">Registrasi Baru</span>
            </Button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 bg-white/50 dark:bg-slate-950/20 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-black/20 backdrop-blur-xl ring-1 ring-slate-100/50 dark:ring-slate-800/50">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 bg-white/50 dark:bg-slate-950/20 p-4 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/20 dark:shadow-black/20 backdrop-blur-xl ring-1 ring-slate-100/50 dark:ring-slate-800/50">
         <div className="relative flex-1">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600" size={20} />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600" size={18} />
           <Input 
             placeholder="Cari Identitas Pekerja, Sponsor, atau Branch..." 
-            className="pl-16 h-16 border-none rounded-3xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-800 focus:ring-2 focus:ring-blue-500 font-bold text-slate-800 dark:text-white transition-all text-sm"
+            className="pl-14 h-12 md:h-16 border-none rounded-2xl md:rounded-3xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-800 focus:ring-2 focus:ring-blue-500 font-bold text-slate-800 dark:text-white transition-all text-[11px] md:text-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-2">
            <DropdownMenu>
             <DropdownMenuTrigger render={
-              <Button variant="outline" className="h-16 border-none ring-1 ring-slate-200/50 dark:ring-slate-800 rounded-3xl px-8 flex items-center space-x-4 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
-                <Filter size={18} className="text-blue-500" />
+              <Button variant="outline" className="h-12 md:h-16 w-full border-none ring-1 ring-slate-200/50 dark:ring-slate-800 rounded-2xl md:rounded-3xl px-6 md:px-8 flex items-center space-x-3 md:space-x-4 bg-white dark:bg-slate-900 font-black text-[9px] md:text-[10px] uppercase tracking-widest text-slate-600 dark:text-slate-400 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                <Filter size={16} className="text-blue-500" />
                 <span>Status: {statusFilter}</span>
               </Button>
             } />
