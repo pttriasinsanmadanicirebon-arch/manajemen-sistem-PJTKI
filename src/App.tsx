@@ -124,12 +124,33 @@ export default function App() {
 
   const handleUpdateStatus = async (id: string, status: CPMIStatus) => {
     try {
-      await updateDoc(doc(db, 'cpmi', id), {
+      const timestamp = new Date().toLocaleString('id-ID', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).replace(/\//g, '-');
+
+      const cpmiRef = doc(db, 'cpmi', id);
+      const snap = await getDoc(cpmiRef);
+      const currentHistory = snap.data()?.statusHistory || [];
+      
+      const newHistory = [...currentHistory, { 
+        status, 
+        date: timestamp,
+        note: `Update status ke ${status}` 
+      }];
+
+      await updateDoc(cpmiRef, {
         status,
+        statusHistory: newHistory,
         updatedAt: serverTimestamp()
       });
+
       if (selectedCPMI?.id === id) {
-        setSelectedCPMI({ ...selectedCPMI, status });
+        setSelectedCPMI({ ...selectedCPMI, status, statusHistory: newHistory });
       }
       toast.success(`Status CPMI diperbarui: ${status}`);
     } catch (e) {
@@ -209,7 +230,7 @@ export default function App() {
   };
 
   const handlePrintReport = () => {
-    toast.info("Fitur Cetak Laporan sedang disiapkan...");
+    setActiveTab('reports');
   };
 
   const handleUploadDocument = async (file: File, type: string, cpmiId: string) => {

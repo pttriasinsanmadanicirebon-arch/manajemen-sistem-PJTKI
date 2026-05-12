@@ -59,6 +59,13 @@ export interface CPMI {
   familyContact: string; // Name & Phone
   education: string;
   marriageStatus: string;
+  weight?: number;
+  height?: number;
+  motherName?: string;
+  fatherName?: string;
+  parentsAddress?: string;
+  provinsi?: string;
+  kabupaten?: string;
   targetCountry: string;
   jobType: string;
   agency: string;
@@ -68,6 +75,7 @@ export interface CPMI {
   registrationDate: string;
   flightDate?: string;
   status: CPMIStatus;
+  statusHistory?: { status: string; date: string; note?: string }[];
   note: string;
   bottleneck?: string;
   picId?: string; // Assigned Admin/PIC

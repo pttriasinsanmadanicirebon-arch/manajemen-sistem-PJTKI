@@ -316,7 +316,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                      <TrendingUp size={32} />
                   </div>
                </div>
-               <Button className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-xs rounded-3xl shadow-2xl shadow-blue-900/40 transition-all active:scale-95 group">
+               <Button onClick={onReport} className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-xs rounded-3xl shadow-2xl shadow-blue-900/40 transition-all active:scale-95 group">
                   Audit Mutasi Kas
                   <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                </Button>

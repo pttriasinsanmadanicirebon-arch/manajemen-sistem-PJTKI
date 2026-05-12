@@ -128,7 +128,159 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-24 dark:text-slate-200">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+      {/* PRINT ONLY BIODATA - Optimized for the requested layout */}
+      <div className="hidden print:block bg-white text-black p-0 m-0" style={{ fontSize: '10px' }}>
+        <div className="flex gap-6 mb-6">
+          <div className="w-32 h-40 shrink-0 overflow-hidden rounded-lg border">
+            {cpmi.photoUrl ? (
+              <img src={cpmi.photoUrl} alt={cpmi.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                <User size={40} />
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <p className="text-[8px] font-bold uppercase text-slate-500">Data Sesuai Dukcapil</p>
+            <h1 className="text-2xl font-black uppercase mt-1">{cpmi.name}</h1>
+            <div className="flex gap-4 mt-2 mb-3">
+              <div className="flex items-center gap-1">
+                <CheckCircle2 size={12} className="text-blue-600" />
+                <span className="font-bold">{cpmi.gender === 'Perempuan' ? 'P' : 'L'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <CheckCircle2 size={12} className="text-blue-600" />
+                <span className="font-bold">{new Date().getFullYear() - new Date(cpmi.birthDate).getFullYear()} Tahun</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-y-2 text-[9px] font-medium">
+              <div className="flex items-center gap-1"><Briefcase size={10} /> {cpmi.weight || '-'} kg</div>
+              <div className="flex items-center gap-1"><MapPin size={10} /> {cpmi.height || '-'} cm</div>
+              <div className="flex items-center gap-1"><Clock size={10} /> {cpmi.phone}</div>
+              <div className="flex items-center gap-1 col-span-2 capitalize"><ShieldCheck size={10} /> {cpmi.birthPlace}, {cpmi.birthDate}</div>
+            </div>
+            <div className="mt-4 border p-2 rounded flex items-center gap-2 w-max">
+               <Download size={14} />
+               <span className="font-bold uppercase text-[8px]">Unduh Dokumen Kepesertaan</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-xs font-black uppercase border-b-2 border-black pb-1 mb-3">Detail Proses Penempatan</h2>
+          <div className="space-y-3">
+            {[...(cpmi.statusHistory || [])].reverse().map((h, i) => (
+              <div key={i} className="flex gap-3">
+                <CheckCircle2 size={12} className="text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-[9px]">{h.date}</p>
+                  <p className="text-[8px] text-slate-600">{h.status} - {h.note || 'Diproses oleh sistem'}</p>
+                </div>
+              </div>
+            ))}
+            {(!cpmi.statusHistory || cpmi.statusHistory.length === 0) && (
+              <div className="flex gap-3">
+                <CheckCircle2 size={12} className="text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-[9px]">{cpmi.registrationDate}</p>
+                  <p className="text-[8px] text-slate-600">Pendaftaran - Berhasil terintegrasi ke sistem</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-6">
+           <h2 className="text-xs font-black uppercase border-b-2 border-black pb-1 mb-2">ID Registrasi</h2>
+           <p className="text-[9px]">({cpmi.regNo})</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-10 gap-y-6">
+          <section>
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Detail Data Diri</h2>
+            <div className="space-y-1.5">
+              <PrintField label="NIK" value={cpmi.nik} />
+              <PrintField label="TTL" value={`${cpmi.birthPlace}, ${cpmi.birthDate}`} />
+              <PrintField label="Provinsi" value={cpmi.provinsi} />
+              <PrintField label="Kabupaten" value={cpmi.kabupaten} />
+              <PrintField label="Alamat" value={cpmi.address} />
+              <PrintField label="Status Kawin" value={cpmi.marriageStatus} />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Data orang tua</h2>
+            <div className="space-y-1.5">
+              <PrintField label="Nama Ibu" value={cpmi.motherName} />
+              <PrintField label="Nama Ayah" value={cpmi.fatherName} />
+              <PrintField label="Alamat orang tua" value={cpmi.parentsAddress} />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Jamsos Selama dan Setelah Penempatan</h2>
+            <div className="space-y-1.5">
+              <PrintField label="Provider" value="-" />
+              <PrintField label="Nomor" value="-" />
+              <PrintField label="Tanggal Berlaku" value="s.d. -" />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Resume Pendidikan</h2>
+            <div className="space-y-1.5">
+               <p className="text-[8px] font-bold text-slate-400">2019 - 2022</p>
+               <p className="text-[9px] font-bold uppercase">{cpmi.education} - TEKNIK KOMPUTER DAN INFORMATIKA <span className="text-blue-600">SMK NASYRUL ULUM GEGESIK</span></p>
+            </div>
+          </section>
+
+          <section className="col-span-2">
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Persyaratan Seleksi</h2>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {Object.entries(cpmi.completeness).map(([k, v]) => (
+                <div key={k} className="flex items-center gap-1">
+                   <p className="text-[9px] font-bold capitalize">{k}</p>
+                   <CheckCircle2 size={10} className={v ? "text-emerald-600" : "text-slate-300"} />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="col-span-2">
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Persyaratan OPP</h2>
+            <div className="flex gap-4">
+              <p className="text-[9px] font-bold">Paspor</p>
+              <p className="text-[9px] font-bold">Perjanjian Kerja</p>
+              <p className="text-[9px] font-bold">Visa Kerja</p>
+            </div>
+          </section>
+
+          <section className="col-span-2">
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Dokumen Penempatan</h2>
+            <div className="flex flex-wrap gap-4">
+              {['Cost Structure', 'Draft Perjanjian Kerja', 'Draft Perjanjian Kerja ttd PMI', 'Jamsos Sebelum Bekerja', 'Jamsos Selama dan Setelah Bekerja', 'Perjanjian Penempatan Pekerja Migran Indonesia', 'Sertifikat Fit to Work'].map(d => (
+                <p key={d} className="text-[9px] font-bold">{d} <CheckCircle2 size={8} className="inline ml-1 text-slate-300" /></p>
+              ))}
+            </div>
+          </section>
+
+          <section className="col-span-2">
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Informasi Peluang Kerja</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[8px] font-bold text-slate-400">No Job Order :</p>
+                <p className="text-[9px] font-bold">{cpmi.regNo.replace('REG', 'JOB')}</p>
+              </div>
+              <div>
+                <p className="text-[8px] font-bold text-slate-400">No SIP2MI :</p>
+                <p className="text-[9px] font-bold">B. 432/SIP2MI/IV/2026</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 no-print">
         <div className="flex items-center space-x-6">
           <Button variant="ghost" size="icon" onClick={onBack} className="rounded-2xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-800 h-12 w-12 shrink-0">
             <ArrowLeft size={24} />
@@ -185,7 +337,7 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8 no-print">
         {/* Left Column: CPMI Info & Financials */}
         <section className="w-full lg:w-3/5 flex flex-col gap-8">
           {/* Fee Tracking Dashboard */}
@@ -362,7 +514,7 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
       </div>
 
       {activeTab === 'finance' && (
-        <div className="mt-12 animate-in slide-in-from-top-4 duration-500">
+        <div className="mt-12 animate-in slide-in-from-top-4 duration-500 no-print">
            <Card className="rounded-3xl border-none bg-white shadow-xl ring-1 ring-slate-200/50">
              <CardHeader className="px-8 py-6 border-b border-slate-50 flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-bold">Histori Transaksi Lengkap</CardTitle>
@@ -447,6 +599,13 @@ const DetailItem = ({ label, value, isMono, isBold }: { label: string, value?: s
     <p className={`text-sm ${isBold ? 'font-bold text-slate-900 dark:text-white' : 'font-semibold text-slate-700 dark:text-slate-300'} ${isMono ? 'font-mono text-[11px]' : ''}`}>
       {value || '-'}
     </p>
+  </div>
+);
+
+const PrintField = ({ label, value }: { label: string, value?: string | number }) => (
+  <div className="flex justify-between items-start text-[9px] border-b border-slate-50 pb-1">
+    <span className="text-slate-400 font-bold w-32 shrink-0">{label} :</span>
+    <span className="font-bold text-slate-800 text-left flex-1 break-words">{value || '-'}</span>
   </div>
 );
 

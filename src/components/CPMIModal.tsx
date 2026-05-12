@@ -48,6 +48,13 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
     familyContact: '',
     education: '',
     marriageStatus: 'Single',
+    weight: 0,
+    height: 0,
+    motherName: '',
+    fatherName: '',
+    parentsAddress: '',
+    provinsi: '',
+    kabupaten: '',
     targetCountry: '',
     jobType: '',
     agency: '',
@@ -76,6 +83,10 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Local preview immediately
+    const localUrl = URL.createObjectURL(file);
+    setFormData(prev => ({ ...prev, photoUrl: localUrl }));
+
     setIsUploading(true);
     try {
       const storageRef = ref(storage, `cpmi-photos/${formData.regNo || 'temp'}_${Date.now()}`);
@@ -84,7 +95,7 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
       setFormData(prev => ({ ...prev, photoUrl: url }));
       toast.success("Foto berhasil diunggah");
     } catch (error) {
-      toast.error("Gagal mengunggah foto");
+      toast.error("Gagal mengunggah foto. Periksa koneksi internet.");
     } finally {
       setIsUploading(false);
     }
@@ -323,12 +334,69 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                                 </Select>
                              </FormGroup>
                              <FormGroup className="md:col-span-2" label="Kontak Keluarga (Nama & No HP)">
-                               <Input 
-                                 value={formData.familyContact || ''} 
-                                 onChange={(e) => setFormData({...formData, familyContact: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
-                                 placeholder="Nama Pasangan/Orang Tua - 08xxxxxxxx"
-                               />
+                                <Input 
+                                  value={formData.familyContact || ''} 
+                                  onChange={(e) => setFormData({...formData, familyContact: e.target.value})} 
+                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
+                                  placeholder="Nama Pasangan/Orang Tua - 08xxxxxxxx"
+                                />
+                             </FormGroup>
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormGroup label="Berat Badan (Kg)">
+                                  <Input 
+                                    type="number"
+                                    value={formData.weight || ''} 
+                                    onChange={(e) => setFormData({...formData, weight: Number(e.target.value)})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold"
+                                  />
+                                </FormGroup>
+                                <FormGroup label="Tinggi Badan (Cm)">
+                                  <Input 
+                                    type="number"
+                                    value={formData.height || ''} 
+                                    onChange={(e) => setFormData({...formData, height: Number(e.target.value)})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold"
+                                  />
+                                </FormGroup>
+                             </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormGroup label="Provinsi">
+                                  <Input 
+                                    value={formData.provinsi || ''} 
+                                    onChange={(e) => setFormData({...formData, provinsi: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </FormGroup>
+                                <FormGroup label="Kabupaten / Kota">
+                                  <Input 
+                                    value={formData.kabupaten || ''} 
+                                    onChange={(e) => setFormData({...formData, kabupaten: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </FormGroup>
+                             </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormGroup label="Nama Ibu">
+                                  <Input 
+                                    value={formData.motherName || ''} 
+                                    onChange={(e) => setFormData({...formData, motherName: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </FormGroup>
+                                <FormGroup label="Nama Ayah">
+                                  <Input 
+                                    value={formData.fatherName || ''} 
+                                    onChange={(e) => setFormData({...formData, fatherName: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </FormGroup>
+                             </div>
+                             <FormGroup className="md:col-span-2" label="Alamat Orang Tua">
+                                <Input 
+                                  value={formData.parentsAddress || ''} 
+                                  onChange={(e) => setFormData({...formData, parentsAddress: e.target.value})} 
+                                  className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                />
                              </FormGroup>
                           </div>
                        </section>
