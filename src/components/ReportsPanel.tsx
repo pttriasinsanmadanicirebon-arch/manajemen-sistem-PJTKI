@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
+import { TransactionList } from './TransactionList';
 
 interface ReportsPanelProps {
   cpmiList: CPMI[];
@@ -22,15 +23,30 @@ interface ReportsPanelProps {
 
 export const ReportsPanel: React.FC<ReportsPanelProps> = ({ cpmiList, transactions }) => {
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [activeTab, setActiveTab] = useState<'exports' | 'audit'>('exports');
+
+  const filteredTransactions = useMemo(() => {
+    if (!dateRange.start && !dateRange.end) return transactions;
+    
+    return transactions.filter(t => {
+      const transDate = new Date(t.date);
+      const start = dateRange.start ? new Date(dateRange.start) : null;
+      const end = dateRange.end ? new Date(dateRange.end) : null;
+      
+      if (start && transDate < start) return false;
+      if (end && transDate > end) return false;
+      return true;
+    });
+  }, [transactions, dateRange]);
 
   const stats = useMemo(() => {
     const problematic = cpmiList.filter(c => c.bottleneck).length;
     const readyFly = cpmiList.filter(c => c.status === 'Ready Terbang').length;
-    const income = transactions.filter(t => t.type === 'INCOME').reduce((a, b) => a + (Number(b.amount) || 0), 0);
-    const expense = transactions.filter(t => t.type === 'EXPENSE').reduce((a, b) => a + (Number(b.amount) || 0), 0);
+    const income = filteredTransactions.filter(t => t.type === 'INCOME').reduce((a, b) => a + (Number(b.amount) || 0), 0);
+    const expense = filteredTransactions.filter(t => t.type === 'EXPENSE').reduce((a, b) => a + (Number(b.amount) || 0), 0);
     
     return { problematic, readyFly, income, expense, balance: income - expense };
-  }, [cpmiList, transactions]);
+  }, [cpmiList, filteredTransactions]);
 
   const exportExcel = (data: any[], fileName: string) => {
     try {
@@ -60,7 +76,7 @@ export const ReportsPanel: React.FC<ReportsPanelProps> = ({ cpmiList, transactio
   };
 
   const handleExportFinance = () => {
-    const data = transactions.map(t => ({
+    const data = filteredTransactions.map(t => ({
       'Date Log': t.date,
       'Type': t.type,
       'Sector/Category': t.category,
@@ -82,102 +98,134 @@ export const ReportsPanel: React.FC<ReportsPanelProps> = ({ cpmiList, transactio
     exportExcel(data, `Problematic_Ops_List_${new Date().toISOString().split('T')[0]}`);
   };
 
+  const handleApplyFilter = () => {
+    toast.success(`Filter period applied: ${filteredTransactions.length} records found`);
+  };
+
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20 px-2">
-      <div className="flex flex-col space-y-2">
-         <div className="flex items-center gap-3">
-            <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
-            <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white uppercase font-display">Financial & Ops Intelligence</h2>
-         </div>
-         <p className="text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-[0.3em] ml-5">Cross-Border Resource Analytics & Analytics Center</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col space-y-2">
+           <div className="flex items-center gap-3">
+              <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
+              <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white uppercase font-display">Financial & Ops Intelligence</h2>
+           </div>
+           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-[0.3em] ml-5">Cross-Border Resource Analytics & Analytics Center</p>
+        </div>
+
+        <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl md:w-fit">
+          <Button 
+            variant={activeTab === 'exports' ? 'default' : 'ghost'} 
+            onClick={() => setActiveTab('exports')}
+            className={`rounded-xl px-6 h-10 font-bold uppercase text-[10px] tracking-widest ${activeTab === 'exports' ? 'bg-blue-600 shadow-lg' : 'text-slate-400'}`}
+          >
+            Exports
+          </Button>
+          <Button 
+            variant={activeTab === 'audit' ? 'default' : 'ghost'} 
+            onClick={() => setActiveTab('audit')}
+            className={`rounded-xl px-6 h-10 font-bold uppercase text-[10px] tracking-widest ${activeTab === 'audit' ? 'bg-blue-600 shadow-lg' : 'text-slate-400'}`}
+          >
+            Audit Live
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatReportCard title="Critical Bottlenecks" value={stats.problematic} icon={<AlertCircle />} color="text-rose-600 dark:text-rose-400" bgColor="bg-rose-50 dark:bg-rose-900/20" />
         <StatReportCard title="Deployment Ready" value={stats.readyFly} icon={<TrendingUp />} color="text-emerald-600 dark:text-emerald-400" bgColor="bg-emerald-50 dark:bg-emerald-900/20" />
-        <StatReportCard title="Total Cash Inflow" value={new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(stats.income)} icon={<PieChartIcon />} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-900/20" />
-        <StatReportCard title="Current Liquidity" value={new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(stats.balance)} icon={<Briefcase />} color="text-amber-600 dark:text-amber-400" bgColor="bg-amber-50 dark:bg-amber-900/20" />
+        <StatReportCard title="Filtered Inflow" value={new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(stats.income)} icon={<PieChartIcon />} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-50 dark:bg-blue-900/20" />
+        <StatReportCard title="Period Liquidity" value={new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(stats.balance)} icon={<Briefcase />} color="text-amber-600 dark:text-amber-400" bgColor="bg-amber-50 dark:bg-amber-900/20" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <Card className="lg:col-span-2 rounded-[3rem] border-none shadow-2xl shadow-slate-200/50 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900 ring-1 ring-slate-100 dark:ring-slate-800">
-          <CardHeader className="p-10 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
-             <div className="flex items-center gap-6">
-                <div className="p-4 bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-xl shadow-blue-500/10 border border-slate-100 dark:border-slate-700">
-                   <Download size={28} className="text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
-                </div>
-                <div>
-                   <CardTitle className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight font-display">Asset Export Center</CardTitle>
-                   <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Cross-platform data synchronization (.XLSX)</p>
-                </div>
-             </div>
-          </CardHeader>
-          <CardContent className="p-10 space-y-8">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ReportAction 
-                  title="Full Master Database" 
-                  desc="Comprehensive regulatory dataset" 
-                  icon={<Users className="text-blue-600" />} 
-                  onClick={handleExportCPMI} 
-                />
-                <ReportAction 
-                  title="Global Finance Ledger" 
-                  desc="Detailed transaction audit log" 
-                  icon={<FileText className="text-emerald-600" />} 
-                  onClick={handleExportFinance} 
-                />
-                <ReportAction 
-                  title="Exception/Issue Report" 
-                  desc="Bottleneck & contingency analysis" 
-                  icon={<AlertCircle className="text-rose-600" />} 
-                  onClick={handleExportProblematic} 
-                />
-                <ReportAction 
-                  title="Network Performance" 
-                  desc="Affiliate & distribution analytics" 
-                  icon={<TrendingUp className="text-amber-600" />} 
-                  onClick={() => toast.info("Advanced analytics arriving soon")} 
-                />
-             </div>
-          </CardContent>
-        </Card>
+      {activeTab === 'exports' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <Card className="lg:col-span-2 rounded-[3rem] border-none shadow-2xl shadow-slate-200/50 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900 ring-1 ring-slate-100 dark:ring-slate-800">
+            <CardHeader className="p-10 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+               <div className="flex items-center gap-6">
+                  <div className="p-4 bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-xl shadow-blue-500/10 border border-slate-100 dark:border-slate-700">
+                     <Download size={28} className="text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
+                  </div>
+                  <div>
+                     <CardTitle className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight font-display">Asset Export Center</CardTitle>
+                     <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Cross-platform data synchronization (.XLSX)</p>
+                  </div>
+               </div>
+            </CardHeader>
+            <CardContent className="p-10 space-y-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ReportAction 
+                    title="Full Master Database" 
+                    desc="Comprehensive regulatory dataset" 
+                    icon={<Users className="text-blue-600" />} 
+                    onClick={handleExportCPMI} 
+                  />
+                  <ReportAction 
+                    title="Global Finance Ledger" 
+                    desc="Detailed transaction audit log" 
+                    icon={<FileText className="text-emerald-600" />} 
+                    onClick={handleExportFinance} 
+                  />
+                  <ReportAction 
+                    title="Exception/Issue Report" 
+                    desc="Bottleneck & contingency analysis" 
+                    icon={<AlertCircle className="text-rose-600" />} 
+                    onClick={handleExportProblematic} 
+                  />
+                  <ReportAction 
+                    title="Network Performance" 
+                    desc="Affiliate & distribution analytics" 
+                    icon={<TrendingUp className="text-amber-600" />} 
+                    onClick={() => toast.info("Advanced analytics arriving soon")} 
+                  />
+               </div>
+            </CardContent>
+          </Card>
 
-        <Card className="rounded-[3rem] border-none shadow-2xl shadow-slate-200/50 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900 ring-1 ring-slate-100 dark:ring-slate-800">
-          <CardHeader className="p-10 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
-             <div className="flex items-center gap-4">
-                <div className="p-2 bg-blue-600/10 dark:bg-blue-400/10 rounded-lg">
-                   <Calendar size={20} className="text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
-                </div>
-                <CardTitle className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Temporal Filter</CardTitle>
-             </div>
-          </CardHeader>
-          <CardContent className="p-10 space-y-8">
-             <div className="space-y-6">
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Period Inception</label>
-                   <input 
-                     type="date" 
-                     className="w-full h-16 rounded-[1.5rem] bg-slate-50 dark:bg-slate-950/50 border-none ring-1 ring-slate-200 dark:ring-slate-800 outline-none px-6 font-black text-slate-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-600" 
-                     value={dateRange.start}
-                     onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                   />
-                </div>
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Period Termination</label>
-                   <input 
-                     type="date" 
-                     className="w-full h-16 rounded-[1.5rem] bg-slate-50 dark:bg-slate-950/50 border-none ring-1 ring-slate-200 dark:ring-slate-800 outline-none px-6 font-black text-slate-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-600" 
-                     value={dateRange.end}
-                     onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                   />
-                </div>
-             </div>
-             <Button className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-blue-500/30 transition-all active:scale-95">
-                Apply Intelligence Filter
-             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="rounded-[3rem] border-none shadow-2xl shadow-slate-200/50 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900 ring-1 ring-slate-100 dark:ring-slate-800">
+            <CardHeader className="p-10 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
+               <div className="flex items-center gap-4">
+                  <div className="p-2 bg-blue-600/10 dark:bg-blue-400/10 rounded-lg">
+                     <Calendar size={20} className="text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
+                  </div>
+                  <CardTitle className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Temporal Filter</CardTitle>
+               </div>
+            </CardHeader>
+            <CardContent className="p-10 space-y-8">
+               <div className="space-y-6">
+                  <div className="space-y-3">
+                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Period Inception</label>
+                     <input 
+                       type="date" 
+                       className="w-full h-16 rounded-[1.5rem] bg-slate-50 dark:bg-slate-950/50 border-none ring-1 ring-slate-200 dark:ring-slate-800 outline-none px-6 font-black text-slate-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-600" 
+                       value={dateRange.start}
+                       onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                     />
+                  </div>
+                  <div className="space-y-3">
+                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Period Termination</label>
+                     <input 
+                       type="date" 
+                       className="w-full h-16 rounded-[1.5rem] bg-slate-50 dark:bg-slate-950/50 border-none ring-1 ring-slate-200 dark:ring-slate-800 outline-none px-6 font-black text-slate-700 dark:text-white transition-all focus:ring-2 focus:ring-blue-600" 
+                       value={dateRange.end}
+                       onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                     />
+                  </div>
+               </div>
+               <Button onClick={handleApplyFilter} className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-blue-500/30 transition-all active:scale-95">
+                  Apply Intelligence Filter
+               </Button>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="animate-in slide-in-from-right-8 duration-700">
+           {/* Embedded Transaction List for Auditing */}
+           <div className="bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl p-2 ring-1 ring-slate-200/50 dark:ring-slate-800">
+              <TransactionList Transactions={filteredTransactions} />
+           </div>
+        </div>
+      )}
     </div>
   );
 };

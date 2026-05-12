@@ -95,10 +95,18 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
       { Kategori: 'NIK', Detail: cpmi.nik },
       { Kategori: 'No. Paspor', Detail: cpmi.passportNo || '-' },
       { Kategori: 'Jenis Kelamin', Detail: cpmi.gender },
+      { Kategori: 'Agama', Detail: cpmi.religion || '-' },
       { Kategori: 'Tempat Lahir', Detail: cpmi.birthPlace },
       { Kategori: 'Tanggal Lahir', Detail: cpmi.birthDate },
+      { Kategori: 'Tinggi Badan', Detail: `${cpmi.height || '-'} cm` },
+      { Kategori: 'Berat Badan', Detail: `${cpmi.weight || '-'} kg` },
       { Kategori: 'Pendidikan', Detail: cpmi.education },
+      { Kategori: 'Tahun Kelulusan', Detail: cpmi.graduationYear || '-' },
       { Kategori: 'Status Nikah', Detail: cpmi.marriageStatus || 'Single' },
+      { Kategori: 'Provinsi', Detail: cpmi.provinsi || '-' },
+      { Kategori: 'Kabupaten/Kota', Detail: cpmi.kabupaten || '-' },
+      { Kategori: 'Kecamatan', Detail: cpmi.kecamatan || '-' },
+      { Kategori: 'RT / RW', Detail: `${cpmi.rt || '-'}/${cpmi.rw || '-'}` },
       { Kategori: 'Alamat KTP', Detail: cpmi.address },
       { Kategori: 'No. HP / WA', Detail: cpmi.phone },
       { Kategori: 'Kontak Keluarga', Detail: cpmi.familyContact },
@@ -106,9 +114,16 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
       { Kategori: '', Detail: '' },
       { Kategori: '--- RENCANA PENEMPATAN ---', Detail: '' },
       { Kategori: 'Negara Tujuan', Detail: cpmi.targetCountry },
+      { Kategori: 'Sektor', Detail: cpmi.sector || '-' },
       { Kategori: 'Job Pekerjaan', Detail: cpmi.jobType },
       { Kategori: 'Agency / Majikan', Detail: cpmi.agency || '-' },
       { Kategori: 'Estimasi Terbang', Detail: cpmi.flightDate || '-' },
+      { Kategori: '', Detail: '' },
+      { Kategori: '--- PENGALAMAN KERJA ---', Detail: '' },
+      ...(cpmi.workExperiences || []).map((exp, idx) => ({
+        Kategori: `Pengalaman ${idx + 1}`,
+        Detail: `${exp.country} - ${exp.company} (${exp.year}) as ${exp.jobTitle} - ${exp.duration}`
+      })),
       { Kategori: '', Detail: '' },
       { Kategori: '--- CATATAN INTERNAL ---', Detail: '' },
       { Kategori: 'Catatan Admin', Detail: cpmi.note || '-' },
@@ -200,9 +215,12 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
             <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Detail Data Diri</h2>
             <div className="space-y-1.5">
               <PrintField label="NIK" value={cpmi.nik} />
+              <PrintField label="Agama" value={cpmi.religion} />
               <PrintField label="TTL" value={`${cpmi.birthPlace}, ${cpmi.birthDate}`} />
               <PrintField label="Provinsi" value={cpmi.provinsi} />
               <PrintField label="Kabupaten" value={cpmi.kabupaten} />
+              <PrintField label="Kecamatan" value={cpmi.kecamatan} />
+              <PrintField label="RT / RW" value={`${cpmi.rt || '-'}/${cpmi.rw || '-'}`} />
               <PrintField label="Alamat" value={cpmi.address} />
               <PrintField label="Status Kawin" value={cpmi.marriageStatus} />
             </div>
@@ -218,19 +236,37 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
           </section>
 
           <section>
-            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Jamsos Selama dan Setelah Penempatan</h2>
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Resume Pendidikan</h2>
             <div className="space-y-1.5">
-              <PrintField label="Provider" value="-" />
-              <PrintField label="Nomor" value="-" />
-              <PrintField label="Tanggal Berlaku" value="s.d. -" />
+               <p className="text-[8px] font-bold text-slate-400">Lulus Tahun: {cpmi.graduationYear || '-'}</p>
+               <p className="text-[9px] font-bold uppercase">{cpmi.education}</p>
             </div>
           </section>
 
           <section>
-            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Resume Pendidikan</h2>
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Informasi Penempatan</h2>
             <div className="space-y-1.5">
-               <p className="text-[8px] font-bold text-slate-400">2019 - 2022</p>
-               <p className="text-[9px] font-bold uppercase">{cpmi.education} - TEKNIK KOMPUTER DAN INFORMATIKA <span className="text-blue-600">SMK NASYRUL ULUM GEGESIK</span></p>
+              <PrintField label="Negara" value={cpmi.targetCountry} />
+              <PrintField label="Sektor" value={cpmi.sector} />
+              <PrintField label="Jabatan" value={cpmi.jobType} />
+              <PrintField label="Masa Kerja" value="2 Tahun" />
+            </div>
+          </section>
+
+          <section className="col-span-2">
+            <h2 className="text-xs font-black uppercase border-b border-slate-200 pb-1 mb-2">Pengalaman Kerja</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {(cpmi.workExperiences || []).length > 0 ? (
+                cpmi.workExperiences?.map((exp, i) => (
+                  <div key={i} className="border p-2 rounded-lg bg-slate-50">
+                    <p className="text-[9px] font-bold uppercase">{exp.country} - {exp.company}</p>
+                    <p className="text-[8px] text-slate-500">{exp.year} | {exp.jobTitle}</p>
+                    <p className="text-[8px] italic">{exp.task} ({exp.duration})</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[9px] text-slate-400 italic col-span-2">Tidak ada pengalaman kerja tercatat</p>
+              )}
             </div>
           </section>
 

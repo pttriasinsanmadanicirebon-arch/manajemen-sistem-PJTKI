@@ -42,6 +42,16 @@ export interface CPMICompleteness {
   pk: boolean;
   perjanjian: boolean;
   suratIjin: boolean;
+  suratKeteranganSehat: boolean;
+  suratStatusPerkawinan: boolean;
+}
+
+export interface WorkExperience {
+  country: string;
+  companyName: string;
+  year: string;
+  jobDesc: string;
+  duration: string;
 }
 
 export interface CPMI {
@@ -59,6 +69,7 @@ export interface CPMI {
   familyContact: string; // Name & Phone
   education: string;
   marriageStatus: string;
+  religion?: string;
   weight?: number;
   height?: number;
   motherName?: string;
@@ -66,8 +77,14 @@ export interface CPMI {
   parentsAddress?: string;
   provinsi?: string;
   kabupaten?: string;
+  kecamatan?: string;
+  rt?: string;
+  rw?: string;
+  graduationYear?: string;
   targetCountry: string;
   jobType: string;
+  sector?: string;
+  workExperiences?: WorkExperience[];
   agency: string;
   sponsor: string;
   sponsorId?: string;

@@ -34,6 +34,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Immediate local preview
+    const localUrl = URL.createObjectURL(file);
+    setFormData(prev => ({ ...prev, logoUrl: localUrl }));
+
     setIsUploading(true);
     try {
       const storageRef = ref(storage, `company/logo_${Date.now()}`);

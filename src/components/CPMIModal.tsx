@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CPMI, CPMIStatus } from '../types';
+import { CPMI, CPMIStatus, WorkExperience } from '../types';
 import { 
   Dialog, 
   DialogContent, 
@@ -43,10 +43,12 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
     birthPlace: '',
     birthDate: '',
     gender: 'Perempuan',
+    religion: 'Islam',
     address: '',
     phone: '',
     familyContact: '',
     education: '',
+    graduationYear: '',
     marriageStatus: 'Single',
     weight: 0,
     height: 0,
@@ -55,16 +57,27 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
     parentsAddress: '',
     provinsi: '',
     kabupaten: '',
+    kecamatan: '',
+    rt: '',
+    rw: '',
     targetCountry: '',
     jobType: '',
+    sector: '',
     agency: '',
     sponsor: '',
     branch: 'Cabang Cirebon',
     registrationDate: new Date().toISOString().split('T')[0],
     status: 'Baru',
     note: '',
+    workExperiences: [
+      { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+      { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+      { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+      { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+      { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+    ],
     completeness: {
-      kte: false,
+      ktp: false,
       kk: false,
       akte: false,
       ijazah: false,
@@ -72,12 +85,21 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
       mcu: false,
       visa: false,
       pk: false,
+      suratIjin: false,
+      suratKeteranganSehat: false,
+      suratStatusPerkawinan: false,
     }
   });
 
-  const [activeSection, setActiveSection] = useState<'pribadi' | 'penempatan' | 'administrasi'>('pribadi');
+  const [activeSection, setActiveSection] = useState<'pribadi' | 'alamat' | 'penempatan' | 'pengalaman' | 'administrasi'>('pribadi');
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleWorkExpChange = (index: number, field: keyof WorkExperience, value: string) => {
+    const newExps = [...(formData.workExperiences || [])];
+    newExps[index] = { ...newExps[index], [field]: value };
+    setFormData({ ...formData, workExperiences: newExps });
+  };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -103,7 +125,16 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        workExperiences: initialData.workExperiences || [
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+        ]
+      });
     } else {
       setFormData({
         name: '',
@@ -112,21 +143,41 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
         birthPlace: '',
         birthDate: '',
         gender: 'Perempuan',
+        religion: 'Islam',
         address: '',
         phone: '',
         familyContact: '',
         education: '',
+        graduationYear: '',
         marriageStatus: 'Single',
+        weight: 0,
+        height: 0,
+        motherName: '',
+        fatherName: '',
+        parentsAddress: '',
+        provinsi: '',
+        kabupaten: '',
+        kecamatan: '',
+        rt: '',
+        rw: '',
         targetCountry: '',
         jobType: '',
+        sector: '',
         agency: '',
         sponsor: '',
         branch: 'Cabang Cirebon',
         registrationDate: new Date().toISOString().split('T')[0],
         status: 'Baru',
         note: '',
+        workExperiences: [
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+          { country: '', companyName: '', year: '', jobDesc: '', duration: '' },
+        ],
         completeness: {
-          kte: false,
+          ktp: false,
           kk: false,
           akte: false,
           ijazah: false,
@@ -134,6 +185,9 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
           mcu: false,
           visa: false,
           pk: false,
+          suratIjin: false,
+          suratKeteranganSehat: false,
+          suratStatusPerkawinan: false,
         }
       });
     }
@@ -141,10 +195,22 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Safety check: Don't submit if not in the final section
+    if (activeSection !== 'administrasi') {
+      if (activeSection === 'pribadi') setActiveSection('alamat');
+      else if (activeSection === 'alamat') setActiveSection('penempatan');
+      else if (activeSection === 'penempatan') setActiveSection('pengalaman');
+      else if (activeSection === 'pengalaman') setActiveSection('administrasi');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
       onOpenChange(false);
+    } catch (error) {
+      toast.error("Gagal menyimpan data. Silahkan coba lagi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -171,16 +237,28 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                   step="01"
                 />
                 <SectionButton 
+                  active={activeSection === 'alamat'} 
+                  onClick={() => setActiveSection('alamat')} 
+                  label="Alamat Lengkap" 
+                  step="02"
+                />
+                <SectionButton 
                   active={activeSection === 'penempatan'} 
                   onClick={() => setActiveSection('penempatan')} 
                   label="Penempatan" 
-                  step="02"
+                  step="03"
+                />
+                <SectionButton 
+                  active={activeSection === 'pengalaman'} 
+                  onClick={() => setActiveSection('pengalaman')} 
+                  label="Pengalaman Kerja" 
+                  step="04"
                 />
                 <SectionButton 
                    active={activeSection === 'administrasi'} 
                    onClick={() => setActiveSection('administrasi')} 
                    label="Administrasi" 
-                   step="03"
+                   step="05"
                 />
              </nav>
              <div className="mt-auto pt-8 border-t border-slate-800 w-full text-center">
@@ -194,8 +272,10 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
           {/* Mobile Header Navigation - Only on mobile */}
           <div className="md:hidden flex bg-slate-900 p-4 justify-around items-center">
              <MobileStepButton active={activeSection === 'pribadi'} label="01" onClick={() => setActiveSection('pribadi')} />
-             <MobileStepButton active={activeSection === 'penempatan'} label="02" onClick={() => setActiveSection('penempatan')} />
-             <MobileStepButton active={activeSection === 'administrasi'} label="03" onClick={() => setActiveSection('administrasi')} />
+             <MobileStepButton active={activeSection === 'alamat'} label="02" onClick={() => setActiveSection('alamat')} />
+             <MobileStepButton active={activeSection === 'penempatan'} label="03" onClick={() => setActiveSection('penempatan')} />
+             <MobileStepButton active={activeSection === 'pengalaman'} label="04" onClick={() => setActiveSection('pengalaman')} />
+             <MobileStepButton active={activeSection === 'administrasi'} label="05" onClick={() => setActiveSection('administrasi')} />
           </div>
 
           {/* Form Area */}
@@ -254,150 +334,209 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-8 md:gap-y-6">
-                             <FormGroup className="md:col-span-2" label="Nama Lengkap Pekerja" required>
+                             <FormGroup className="md:col-span-2" label="Nama Lengkap (Sesuai KTP / Passport)" required>
                                <Input 
                                  value={formData.name || ''} 
                                  onChange={(e) => setFormData({...formData, name: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-slate-800 dark:text-white"
-                                 placeholder="Nama Sesuai Paspor/KTP"
+                                 placeholder="Nama Lengkap"
                                  required
                                />
                              </FormGroup>
-                             <FormGroup label="Nomor Induk Kependudukan (NIK)">
+                             <FormGroup label="NIK / No. KTP" required>
                                <Input 
                                  value={formData.nik || ''} 
                                  onChange={(e) => setFormData({...formData, nik: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-mono text-slate-700 dark:text-slate-300"
-                                 placeholder="16 Digit Nomor KTP"
+                                 placeholder="NIK / No. KTP"
                                  maxLength={16}
+                                 required
                                />
                              </FormGroup>
-                             <FormGroup label="Nomor Paspor (Jika Ada)">
-                               <Input 
-                                 value={formData.passportNo || ''} 
-                                 onChange={(e) => setFormData({...formData, passportNo: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-mono uppercase text-slate-700 dark:text-slate-300"
-                                 placeholder="Contoh: AU123456"
-                               />
-                             </FormGroup>
-                             <FormGroup label="Jenis Kelamin">
+                             <FormGroup label="Jenis Kelamin" required>
                                 <Select value={formData.gender} onValueChange={(v: any) => setFormData({...formData, gender: v})}>
                                   <SelectTrigger className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300">
-                                     <SelectValue />
+                                     <SelectValue placeholder="Pilih Jenis Kelamin" />
                                   </SelectTrigger>
-                                  <SelectContent className="rounded-2xl border-none shadow-2xl p-2 mt-2 bg-white dark:bg-slate-801">
-                                     <SelectItem value="Laki-laki" className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300 focus:bg-slate-100 dark:focus:bg-slate-700">Laki-laki</SelectItem>
-                                     <SelectItem value="Perempuan" className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300 focus:bg-slate-100 dark:focus:bg-slate-700">Perempuan</SelectItem>
+                                  <SelectContent className="rounded-2xl border-none shadow-2xl p-2 mt-2 bg-white dark:bg-slate-800">
+                                     <SelectItem value="Laki-laki" className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300">Laki-laki</SelectItem>
+                                     <SelectItem value="Perempuan" className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300">Perempuan</SelectItem>
                                   </SelectContent>
                                 </Select>
                              </FormGroup>
-                             <FormGroup label="Tempat Lahir">
+                             <FormGroup label="Agama" required>
+                                <Select value={formData.religion} onValueChange={(v) => setFormData({...formData, religion: v})}>
+                                  <SelectTrigger className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300">
+                                     <SelectValue placeholder="Pilih Agama" />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-2xl border-none shadow-2xl p-2 mt-2 bg-white dark:bg-slate-800">
+                                     {['Islam', 'Kristen', 'Katolik', 'Hindu', 'Budha', 'Konghucu'].map(a => (
+                                       <SelectItem key={a} value={a} className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300">{a}</SelectItem>
+                                     ))}
+                                  </SelectContent>
+                                </Select>
+                             </FormGroup>
+                             <FormGroup label="Tempat Lahir (Sesuai KTP / Passport)" required>
                                <Input 
                                  value={formData.birthPlace || ''} 
                                  onChange={(e) => setFormData({...formData, birthPlace: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
+                                 placeholder="Tempat Lahir"
+                                 required
                                />
                              </FormGroup>
-                             <FormGroup label="Tanggal Lahir">
+                             <FormGroup label="Tanggal Lahir" required>
                                <Input 
                                  type="date"
                                  value={formData.birthDate || ''} 
                                  onChange={(e) => setFormData({...formData, birthDate: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
+                                 required
                                />
-                             </FormGroup>
-                             <FormGroup className="md:col-span-2" label="Alamat Sesuai KTP">
-                               <Input 
-                                 value={formData.address || ''} 
-                                 onChange={(e) => setFormData({...formData, address: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
-                                 placeholder="Jalan, Desa, Kec, Kota"
-                               />
-                             </FormGroup>
-                             <FormGroup label="No. HP">
-                               <Input 
-                                 value={formData.phone || ''} 
-                                 onChange={(e) => setFormData({...formData, phone: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
-                               />
-                             </FormGroup>
-                             <FormGroup label="Pendidikan">
-                                <Select value={formData.education} onValueChange={(v: any) => setFormData({...formData, education: v})}>
-                                  <SelectTrigger className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300">
-                                     <SelectValue placeholder="Pilih Pendidikan" />
-                                  </SelectTrigger>
-                                  <SelectContent className="rounded-2xl border-none shadow-2xl p-2 mt-2 bg-white dark:bg-slate-800">
-                                     {['SD', 'SMP', 'SMA', 'Diploma', 'Sarjana'].map(e => (
-                                       <SelectItem key={e} value={e} className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300 focus:bg-slate-100 dark:focus:bg-slate-700">{e}</SelectItem>
-                                     ))}
-                                  </SelectContent>
-                                </Select>
-                             </FormGroup>
-                             <FormGroup className="md:col-span-2" label="Kontak Keluarga (Nama & No HP)">
-                                <Input 
-                                  value={formData.familyContact || ''} 
-                                  onChange={(e) => setFormData({...formData, familyContact: e.target.value})} 
-                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
-                                  placeholder="Nama Pasangan/Orang Tua - 08xxxxxxxx"
-                                />
                              </FormGroup>
                              <div className="grid grid-cols-2 gap-4">
-                                <FormGroup label="Berat Badan (Kg)">
-                                  <Input 
-                                    type="number"
-                                    value={formData.weight || ''} 
-                                    onChange={(e) => setFormData({...formData, weight: Number(e.target.value)})} 
-                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold"
-                                  />
-                                </FormGroup>
-                                <FormGroup label="Tinggi Badan (Cm)">
+                                <FormGroup label="Tinggi Badan (Cm)" required>
                                   <Input 
                                     type="number"
                                     value={formData.height || ''} 
                                     onChange={(e) => setFormData({...formData, height: Number(e.target.value)})} 
                                     className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold"
+                                    required
+                                  />
+                                </FormGroup>
+                                <FormGroup label="Berat Badan (Kg)" required>
+                                  <Input 
+                                    type="number"
+                                    value={formData.weight || ''} 
+                                    onChange={(e) => setFormData({...formData, weight: Number(e.target.value)})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold"
+                                    required
                                   />
                                 </FormGroup>
                              </div>
                              <div className="grid grid-cols-2 gap-4">
-                                <FormGroup label="Provinsi">
-                                  <Input 
-                                    value={formData.provinsi || ''} 
-                                    onChange={(e) => setFormData({...formData, provinsi: e.target.value})} 
-                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
-                                  />
+                                <FormGroup label="Pendidikan Terakhir" required>
+                                  <Select value={formData.education} onValueChange={(v) => setFormData({...formData, education: v})}>
+                                    <SelectTrigger className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300">
+                                       <SelectValue placeholder="Pendidikan" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl p-2 mt-2 bg-white dark:bg-slate-800">
+                                       {['SD', 'SMP', 'SMA', 'Diploma', 'Sarjana'].map(e => (
+                                         <SelectItem key={e} value={e} className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300">{e}</SelectItem>
+                                       ))}
+                                    </SelectContent>
+                                  </Select>
                                 </FormGroup>
-                                <FormGroup label="Kabupaten / Kota">
+                                <FormGroup label="Tahun Kelulusan" required>
                                   <Input 
-                                    value={formData.kabupaten || ''} 
-                                    onChange={(e) => setFormData({...formData, kabupaten: e.target.value})} 
-                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                    value={formData.graduationYear || ''} 
+                                    onChange={(e) => setFormData({...formData, graduationYear: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold"
+                                    placeholder="YYYY"
+                                    required
                                   />
                                 </FormGroup>
                              </div>
+                             <FormGroup label="Status Kawin" required>
+                                <Select value={formData.marriageStatus} onValueChange={(v) => setFormData({...formData, marriageStatus: v})}>
+                                  <SelectTrigger className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300">
+                                     <SelectValue placeholder="Status Kawin" />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-2xl border-none shadow-2xl p-2 mt-2 bg-white dark:bg-slate-800">
+                                     {['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'].map(s => (
+                                       <SelectItem key={s} value={s} className="rounded-xl py-3 font-bold text-slate-600 dark:text-slate-300">{s}</SelectItem>
+                                     ))}
+                                  </SelectContent>
+                                </Select>
+                             </FormGroup>
+                             <FormGroup label="No. Handphone" required>
+                               <Input 
+                                 value={formData.phone || ''} 
+                                 onChange={(e) => setFormData({...formData, phone: e.target.value})} 
+                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
+                                 placeholder="08xxxxxxxxxx"
+                                 required
+                               />
+                             </FormGroup>
+                          </div>
+                       </section>
+                    )}
+
+                    {activeSection === 'alamat' && (
+                       <section className="space-y-6 md:space-y-8 pb-10">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-8 md:gap-y-6">
+                             <FormGroup label="Pilih Provinsi" required>
+                               <Input 
+                                 value={formData.provinsi || ''} 
+                                 onChange={(e) => setFormData({...formData, provinsi: e.target.value})} 
+                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                 placeholder="Provinsi"
+                                 required
+                               />
+                             </FormGroup>
+                             <FormGroup label="Pilih Kabupaten / Kota" required>
+                               <Input 
+                                 value={formData.kabupaten || ''} 
+                                 onChange={(e) => setFormData({...formData, kabupaten: e.target.value})} 
+                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                 placeholder="Kabupaten / Kota"
+                                 required
+                               />
+                             </FormGroup>
+                             <FormGroup label="Pilih Kecamatan" required>
+                               <Input 
+                                 value={formData.kecamatan || ''} 
+                                 onChange={(e) => setFormData({...formData, kecamatan: e.target.value})} 
+                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                 placeholder="Kecamatan"
+                                 required
+                               />
+                             </FormGroup>
                              <div className="grid grid-cols-2 gap-4">
-                                <FormGroup label="Nama Ibu">
+                                <FormGroup label="RT">
                                   <Input 
-                                    value={formData.motherName || ''} 
-                                    onChange={(e) => setFormData({...formData, motherName: e.target.value})} 
-                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                    value={formData.rt || ''} 
+                                    onChange={(e) => setFormData({...formData, rt: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700"
+                                    placeholder="RT"
                                   />
                                 </FormGroup>
-                                <FormGroup label="Nama Ayah">
+                                <FormGroup label="RW">
                                   <Input 
-                                    value={formData.fatherName || ''} 
-                                    onChange={(e) => setFormData({...formData, fatherName: e.target.value})} 
-                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                    value={formData.rw || ''} 
+                                    onChange={(e) => setFormData({...formData, rw: e.target.value})} 
+                                    className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700"
+                                    placeholder="RW"
                                   />
                                 </FormGroup>
                              </div>
-                             <FormGroup className="md:col-span-2" label="Alamat Orang Tua">
+                             <FormGroup className="md:col-span-2" label="Alamat (Tanpa RT/RW, Kel/Desa)" required>
                                 <Input 
-                                  value={formData.parentsAddress || ''} 
-                                  onChange={(e) => setFormData({...formData, parentsAddress: e.target.value})} 
-                                  className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                  value={formData.address || ''} 
+                                  onChange={(e) => setFormData({...formData, address: e.target.value})} 
+                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Nama Jalan / Dusun"
+                                  required
                                 />
                              </FormGroup>
+
+                             <div className="md:col-span-2 border-t border-slate-100 dark:border-slate-800 pt-8 mt-4">
+                                <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">Informasi Orang Tua</h4>
+                                <div className="grid grid-cols-2 gap-6">
+                                   <FormGroup label="Nama Ibu">
+                                     <Input value={formData.motherName || ''} onChange={(e) => setFormData({...formData, motherName: e.target.value})} className="rounded-2xl h-12" />
+                                   </FormGroup>
+                                   <FormGroup label="Nama Ayah">
+                                     <Input value={formData.fatherName || ''} onChange={(e) => setFormData({...formData, fatherName: e.target.value})} className="rounded-2xl h-12" />
+                                   </FormGroup>
+                                </div>
+                                <FormGroup className="mt-4" label="Alamat Orang Tua">
+                                   <Input value={formData.parentsAddress || ''} onChange={(e) => setFormData({...formData, parentsAddress: e.target.value})} className="rounded-2xl h-12" />
+                                </FormGroup>
+                                <FormGroup className="mt-4" label="Kontak Keluarga (Nama & No HP)">
+                                   <Input value={formData.familyContact || ''} onChange={(e) => setFormData({...formData, familyContact: e.target.value})} className="rounded-2xl h-14" placeholder="Nama - 08xxxx" />
+                                </FormGroup>
+                             </div>
                           </div>
                        </section>
                     )}
@@ -405,19 +544,33 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                     {activeSection === 'penempatan' && (
                        <section className="space-y-6 md:space-y-8 pb-10">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 md:gap-x-8 md:gap-y-6">
-                             <FormGroup label="Negara Tujuan">
+                             <FormGroup label="Pilih Tujuan Negara" required>
                                <Input 
                                  value={formData.targetCountry || ''} 
                                  onChange={(e) => setFormData({...formData, targetCountry: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-blue-600 dark:text-blue-400"
-                                 placeholder="Taiwan / Hongkong / dll"
+                                 placeholder="Tujuan Negara"
+                                 required
                                />
                              </FormGroup>
-                             <FormGroup label="Jenis Pekerjaan">
+                             <FormGroup label="Pilih Sektor" required>
+                               <Select value={formData.sector} onValueChange={(v) => setFormData({...formData, sector: v})}>
+                                 <SelectTrigger className="rounded-2xl h-12 md:h-14">
+                                   <SelectValue placeholder="Pilih Sektor" />
+                                 </SelectTrigger>
+                                 <SelectContent>
+                                   <SelectItem value="Informal">Informal (PRT, Caregiver)</SelectItem>
+                                   <SelectItem value="Formal">Formal (Pabrik, Konstruksi, dll)</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                             </FormGroup>
+                             <FormGroup label="Pilih Jabatan" required>
                                <Input 
                                  value={formData.jobType || ''} 
                                  onChange={(e) => setFormData({...formData, jobType: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
+                                 placeholder="Jabatan"
+                                 required
                                />
                              </FormGroup>
                              <FormGroup label="Agency / Majikan">
@@ -425,6 +578,13 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                                  value={formData.agency || ''} 
                                  onChange={(e) => setFormData({...formData, agency: e.target.value})} 
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
+                               />
+                             </FormGroup>
+                             <FormGroup label="Sponsor / Marketing">
+                               <Input 
+                                 value={formData.sponsor || ''} 
+                                 onChange={(e) => setFormData({...formData, sponsor: e.target.value})} 
+                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 dark:text-slate-200"
                                />
                              </FormGroup>
                              <FormGroup label="Rencana Tgl Terbang">
@@ -435,29 +595,69 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                                  className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-emerald-600 dark:text-emerald-400"
                                />
                              </FormGroup>
-                             <FormGroup label="Sponsor / Marketing">
-                               <Input 
-                                 value={formData.sponsor || ''} 
-                                 onChange={(e) => setFormData({...formData, sponsor: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 dark:text-slate-200"
-                               />
-                             </FormGroup>
-                             <FormGroup label="Cabang Input">
-                               <Input 
-                                 value={formData.branch || ''} 
-                                 onChange={(e) => setFormData({...formData, branch: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 text-slate-700 dark:text-slate-300"
-                               />
-                             </FormGroup>
-                             <FormGroup label="Tanggal Daftar">
-                               <Input 
-                                 type="date"
-                                 value={formData.registrationDate || ''} 
-                                 onChange={(e) => setFormData({...formData, registrationDate: e.target.value})} 
-                                 className="rounded-2xl h-12 md:h-14 bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200/50 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 dark:text-slate-200"
-                               />
-                             </FormGroup>
                           </div>
+                       </section>
+                    )}
+
+                    {activeSection === 'pengalaman' && (
+                       <section className="space-y-8 pb-10">
+                          <div className="flex items-center justify-between">
+                             <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Riwayat Pengalaman Kerja (Maks. 5)</h3>
+                          </div>
+                          
+                          <ScrollArea className="h-[400px] pr-4">
+                             <div className="space-y-12">
+                                {[0, 1, 2, 3, 4].map((idx) => (
+                                   <div key={idx} className="relative p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+                                      <div className="absolute -top-4 -left-4 w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-lg">
+                                         0{idx + 1}
+                                      </div>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                         <FormGroup label="Negara" required={idx === 0}>
+                                            <Input 
+                                              value={formData.workExperiences?.[idx]?.country || ''} 
+                                              onChange={(e) => handleWorkExpChange(idx, 'country', e.target.value)} 
+                                              className="rounded-xl h-12"
+                                              placeholder="Negara"
+                                            />
+                                         </FormGroup>
+                                         <FormGroup label="Nama Perusahaan">
+                                            <Input 
+                                              value={formData.workExperiences?.[idx]?.companyName || ''} 
+                                              onChange={(e) => handleWorkExpChange(idx, 'companyName', e.target.value)} 
+                                              className="rounded-xl h-12"
+                                              placeholder="Nama Perusahaan"
+                                            />
+                                         </FormGroup>
+                                         <FormGroup label="Tahun Bekerja">
+                                            <Input 
+                                              value={formData.workExperiences?.[idx]?.year || ''} 
+                                              onChange={(e) => handleWorkExpChange(idx, 'year', e.target.value)} 
+                                              className="rounded-xl h-12"
+                                              placeholder="Contoh: 2018 - 2020"
+                                            />
+                                         </FormGroup>
+                                         <FormGroup label="Masa Kerja">
+                                            <Input 
+                                              value={formData.workExperiences?.[idx]?.duration || ''} 
+                                              onChange={(e) => handleWorkExpChange(idx, 'duration', e.target.value)} 
+                                              className="rounded-xl h-12"
+                                              placeholder="Contoh: 2 Tahun"
+                                            />
+                                         </FormGroup>
+                                         <FormGroup className="md:col-span-2" label="Tugas / Pekerjaan">
+                                            <Input 
+                                              value={formData.workExperiences?.[idx]?.jobDesc || ''} 
+                                              onChange={(e) => handleWorkExpChange(idx, 'jobDesc', e.target.value)} 
+                                              className="rounded-xl h-12"
+                                              placeholder="Detail Pekerjaan"
+                                            />
+                                         </FormGroup>
+                                      </div>
+                                   </div>
+                                ))}
+                             </div>
+                          </ScrollArea>
                        </section>
                     )}
 
@@ -502,7 +702,12 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                     <Button 
                       type="button" 
                       variant="outline" 
-                      onClick={() => setActiveSection(activeSection === 'penempatan' ? 'pribadi' : (activeSection === 'administrasi' ? 'penempatan' : 'pribadi'))}
+                      onClick={() => {
+                        if (activeSection === 'alamat') setActiveSection('pribadi');
+                        else if (activeSection === 'penempatan') setActiveSection('alamat');
+                        else if (activeSection === 'pengalaman') setActiveSection('penempatan');
+                        else if (activeSection === 'administrasi') setActiveSection('pengalaman');
+                      }}
                       className="h-14 rounded-2xl px-8 font-bold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800"
                     >
                        Sebelumnya
@@ -522,10 +727,19 @@ export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubm
                     {activeSection !== 'administrasi' ? (
                        <Button 
                          type="button" 
-                         onClick={() => setActiveSection(activeSection === 'pribadi' ? 'penempatan' : 'administrasi')}
+                         onClick={() => {
+                           if (activeSection === 'pribadi') setActiveSection('alamat');
+                           else if (activeSection === 'alamat') setActiveSection('penempatan');
+                           else if (activeSection === 'penempatan') setActiveSection('pengalaman');
+                           else if (activeSection === 'pengalaman') setActiveSection('administrasi');
+                         }}
                          className="flex-1 h-14 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-xl shadow-blue-900/20 active:scale-[0.98] transition-all"
                        >
-                          Lanjut: {activeSection === 'pribadi' ? 'Penempatan' : 'Administrasi'}
+                          Lanjut: {
+                            activeSection === 'pribadi' ? 'Alamat' : 
+                            activeSection === 'alamat' ? 'Penempatan' : 
+                            activeSection === 'penempatan' ? 'Pengalaman' : 'Administrasi'
+                          }
                           <ChevronRight size={18} className="ml-2" />
                        </Button>
                     ) : (
@@ -566,7 +780,7 @@ const MobileStepButton = ({ active, label, onClick }: { active: boolean, label: 
         {label}
      </div>
      <span className={`text-[8px] font-bold uppercase tracking-tighter ${active ? 'text-blue-400' : 'text-slate-600'}`}>
-        {label === '01' ? 'Pribadi' : label === '02' ? 'Proses' : 'Admin'}
+        {label === '01' ? 'Pribadi' : label === '02' ? 'Alamat' : label === '03' ? 'Tujuan' : label === '04' ? 'History' : 'Berkas'}
      </span>
   </button>
 );
