@@ -26,6 +26,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, storage } from '../lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { toast } from 'sonner';
+import { UserProfile, SystemSettings } from '../types';
 
 interface CPMIModalProps {
   open: boolean;
@@ -33,9 +34,10 @@ interface CPMIModalProps {
   onSubmit: (data: Partial<CPMI>) => void;
   initialData?: CPMI;
   systemSettings: SystemSettings | null;
+  userProfile: UserProfile | null;
 }
 
-export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubmit, initialData, systemSettings }) => {
+export const CPMIModal: React.FC<CPMIModalProps> = ({ open, onOpenChange, onSubmit, initialData, systemSettings, userProfile }) => {
   const [user] = useAuthState(auth);
   const [formData, setFormData] = useState<Partial<CPMI>>({
     name: '',

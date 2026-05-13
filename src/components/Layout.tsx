@@ -19,18 +19,19 @@ import {
 } from 'lucide-react';
 import { Login } from './Login';
 
-import { SystemSettings } from '../types';
+import { SystemSettings, UserProfile } from '../types';
 
-export type TabType = 'dashboard' | 'cpmi' | 'tracking' | 'finance' | 'sponsors' | 'reports' | 'settings';
+export type TabType = 'dashboard' | 'cpmi' | 'tracking' | 'finance' | 'sponsors' | 'reports' | 'settings' | 'users';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   systemSettings: SystemSettings | null;
+  userProfile: UserProfile | null;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, systemSettings }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, systemSettings, userProfile }) => {
   const [user] = useAuthState(auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -47,6 +48,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
     { id: 'reports', label: 'Laporan', icon: <FileText size={20} /> },
     { id: 'settings', label: 'Pengaturan', icon: <Settings size={20} /> },
   ];
+
+  const adminItems: { id: TabType; label: string; icon: React.ReactNode }[] = [
+    { id: 'users', label: 'Manajemen User', icon: <ShieldCheck size={20} /> },
+  ];
+
+  const allNavItems = userProfile?.role === 'SUPER_ADMIN' ? [...navItems, ...adminItems] : navItems;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors">
@@ -69,7 +76,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
         </div>
         
         <nav className="flex-1 px-4 space-y-1">
-          {navItems.map((item) => (
+          {allNavItems.map((item) => (
             <NavItem 
               key={item.id}
               icon={item.icon} 
@@ -94,8 +101,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
               {user.photoURL ? <img src={user.photoURL} alt="" /> : <User size={20} className="text-slate-400" />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white truncate">{user.displayName}</p>
-              <p className="text-[10px] text-slate-500 truncate font-semibold uppercase tracking-wider">Super Admin</p>
+              <p className="text-sm font-bold text-white truncate">{user.displayName || userProfile?.name}</p>
+              <p className="text-[10px] text-slate-500 truncate font-semibold uppercase tracking-wider">{userProfile?.role || 'Super Admin'}</p>
             </div>
           </div>
           <Button variant="ghost" className="w-full justify-start space-x-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 px-2 mt-2 transition-colors rounded-xl font-bold" onClick={() => logout()}>
@@ -119,7 +126,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
               </Button>
               <div className="flex flex-col">
                  <h1 className="text-xl font-black text-slate-900 dark:text-white capitalize font-display">
-                   {navItems.find(i => i.id === activeTab)?.label}
+                   {allNavItems.find(i => i.id === activeTab)?.label}
                  </h1>
                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">
                    {systemSettings?.companyName || 'TIM Management Pro'} &bull; {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -129,11 +136,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
 
            <div className="flex items-center space-x-4">
               <ThemeToggle />
-              <div className="hidden sm:flex flex-col text-right mr-2">
-                <p className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">Administrasi</p>
+              <div className="flex flex-col text-right mr-2">
+                <p className="text-xs font-black text-slate-900 dark:text-slate-200 uppercase tracking-tight">{userProfile?.name?.split(' ')[0] || 'User'}</p>
                 <div className="flex items-center justify-end gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                  <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Cabang Cirebon</p>
+                  <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{userProfile?.cabang || 'Global'}</p>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer lg:hidden">
@@ -160,7 +167,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
             onClick={(e) => e.stopPropagation()}
           >
             <nav className="flex-1 space-y-1">
-              {navItems.map((item) => (
+              {allNavItems.map((item) => (
                 <NavItem 
                   key={item.id}
                   icon={item.icon} 

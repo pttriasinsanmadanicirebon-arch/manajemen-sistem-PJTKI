@@ -12,6 +12,7 @@ interface DashboardProps {
   onAddCPMI: () => void;
   onAddTransaction: () => void;
   onReport: () => void;
+  systemSettings: any;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ 
@@ -19,7 +20,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   transactions,
   onAddCPMI,
   onAddTransaction,
-  onReport
+  onReport,
+  systemSettings
 }) => {
   const stats = useMemo(() => {
     const income = transactions.filter(t => t.type === 'INCOME').reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
@@ -65,7 +67,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="space-y-6 md:space-y-10 animate-in fade-in duration-500 pb-10">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        <div>
+           <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white uppercase font-display tracking-tight">Executive Dashboard</h2>
+           <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-1">{systemSettings?.companyName || 'PT TRIAS INSAN MADANI'} &bull; Realtime Analytics</p>
+        </div>
+        <div className="flex gap-2">
+           <Button onClick={onReport} variant="outline" className="rounded-xl h-12 text-[10px] font-black uppercase tracking-widest border-slate-200 dark:border-slate-800">Operational Report</Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <StatCard 
           title="Total CPMI Aktif" 
           value={stats.total} 
@@ -150,12 +162,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </CardContent>
         </Card>
 
-        <Card className="rounded-[2.5rem] border-none shadow-xl shadow-slate-200/40 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900/50 ring-1 ring-slate-200/50 dark:ring-slate-800 backdrop-blur-xl flex flex-col">
-          <CardHeader className="bg-transparent border-b border-slate-50 dark:border-slate-800 px-8 py-8 text-center">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Distribusi Pekerja</CardTitle>
+        <Card className="rounded-[1.5rem] md:rounded-[2.5rem] border-none shadow-xl shadow-slate-200/40 dark:shadow-black/40 overflow-hidden bg-white dark:bg-slate-900/50 ring-1 ring-slate-200/50 dark:ring-slate-800 backdrop-blur-xl flex flex-col">
+          <CardHeader className="bg-transparent border-b border-slate-50 dark:border-slate-800 px-6 py-6 md:px-8 md:py-8 text-center">
+            <CardTitle className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Distribusi Pekerja</CardTitle>
           </CardHeader>
-          <CardContent className="p-8 flex-1 flex flex-col items-center justify-center">
-             <div className="h-[260px] w-full">
+          <CardContent className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center">
+             <div className="h-[200px] md:h-[260px] w-full">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -178,26 +190,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </PieChart>
                </ResponsiveContainer>
              </div>
-             <div className="mt-8 grid grid-cols-2 gap-3 w-full">
+             <div className="mt-6 md:mt-8 grid grid-cols-2 gap-3 w-full">
                 {statusData.slice(0, 4).map((entry, index) => (
-                  <div key={entry.name} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/40 px-4 py-3 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                  <div key={entry.name} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/40 px-3 py-2 md:px-4 md:py-3 rounded-[1rem] md:rounded-2xl border border-slate-100 dark:border-slate-700/50">
                     <div className="flex items-center gap-2">
                        <div className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                       <span className="text-[9px] font-black uppercase tracking-tighter text-slate-400 dark:text-slate-500">{entry.name}</span>
+                       <span className="text-[8px] md:text-[9px] font-black uppercase tracking-tighter text-slate-400 dark:text-slate-500">{entry.name}</span>
                     </div>
-                    <span className="text-xs font-black text-slate-900 dark:text-white tabular-nums">{entry.value}</span>
+                    <span className="text-[10px] md:text-xs font-black text-slate-900 dark:text-white tabular-nums">{entry.value}</span>
                   </div>
                 ))}
              </div>
           </CardContent>
-          <div className="p-8 bg-blue-600 dark:bg-blue-700 text-white mt-auto">
+          <div className="p-6 md:p-8 bg-blue-600 dark:bg-blue-700 text-white mt-auto">
              <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                   <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest leading-none opacity-80">Saldo Kas Perusahaan</p>
-                   <p className="text-2xl font-black font-mono tracking-tighter">{formatCurrency(stats.profit)}</p>
+                   <p className="text-[8px] md:text-[10px] font-black text-blue-200 uppercase tracking-widest leading-none opacity-80">Saldo Kas Perusahaan</p>
+                   <p className="text-xl md:text-2xl font-black font-mono tracking-tighter">{formatCurrency(stats.profit)}</p>
                 </div>
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md text-white flex items-center justify-center shadow-lg">
-                   <Wallet size={24} />
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-md text-white flex items-center justify-center shadow-lg">
+                   <Wallet size={20} />
                 </div>
              </div>
           </div>
@@ -205,7 +217,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </div>
 
       {/* Action shortcuts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
          <ActionCard color="blue" onClick={onAddCPMI} title="Input CPMI Baru" subtitle="Pendaftaran calon pekerja" icon={<Users size={24} className="text-white" />} />
          <ActionCard color="emerald" onClick={onAddTransaction} title="Input Keuangan" subtitle="Catat kas masuk/keluar" icon={<Briefcase size={24} className="text-white" />} />
          <ActionCard color="rose" onClick={onReport} title="Reports Center" subtitle="Generate Analytics & Files" icon={<FileText size={24} className="text-white" />} />
@@ -214,19 +226,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Modern Bottleneck & Today's Cashflow */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
          {/* Bottleneck Table */}
-         <Card className="lg:col-span-2 rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/40 dark:shadow-black/40 ring-1 ring-slate-100 dark:ring-slate-800 overflow-hidden">
-            <CardHeader className="p-8 pb-6 bg-slate-50/50 dark:bg-black/10 border-b border-slate-100 dark:border-slate-800">
+         <Card className="lg:col-span-2 rounded-[1.5rem] md:rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/40 dark:shadow-black/40 ring-1 ring-slate-100 dark:ring-slate-800 overflow-hidden">
+            <CardHeader className="p-6 md:p-8 pb-4 md:pb-6 bg-slate-50/50 dark:bg-black/10 border-b border-slate-100 dark:border-slate-800">
                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                     <div className="p-3 rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 shadow-sm border border-rose-100 dark:border-rose-900/30">
-                        <AlertCircle size={24} />
+                  <div className="flex items-center gap-3 md:gap-4">
+                     <div className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 shadow-sm border border-rose-100 dark:border-rose-900/30">
+                        <AlertCircle size={20} />
                      </div>
                      <div>
-                        <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Monitoring Kendala</CardTitle>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">PMI Mandek / Masalah Dokumen</p>
+                        <CardTitle className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Monitoring Kendala</CardTitle>
+                        <p className="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">PMI Mandek / Masalah Dokumen</p>
                      </div>
                   </div>
-                  <Button variant="ghost" className="rounded-xl h-10 px-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600">Lihat Semua</Button>
+                  <Button variant="ghost" className="hidden sm:flex rounded-xl h-10 px-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600">Lihat Semua</Button>
                </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -234,41 +246,41 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <table className="w-full text-left">
                      <thead>
                         <tr className="bg-slate-50/30 dark:bg-black/5">
-                           <th className="px-8 py-5 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pekerja / Cabang</th>
-                           <th className="px-4 py-5 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">Progress</th>
-                           <th className="px-4 py-5 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Detail Isu Kendala</th>
-                           <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Otoritas</th>
+                           <th className="px-6 md:px-8 py-4 md:py-5 text-[9px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pekerja / Cabang</th>
+                           <th className="px-2 md:px-4 py-4 md:py-5 text-[9px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">Progress</th>
+                           <th className="px-2 md:px-4 py-4 md:py-5 text-[9px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Detail Isu Kendala</th>
+                           <th className="hidden sm:table-cell px-8 py-5 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Otoritas</th>
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {cpmiList.filter(c => c.bottleneck).slice(0, 5).map(c => (
                            <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all group">
-                              <td className="px-8 py-6">
-                                 <div className="space-y-1">
-                                    <p className="font-extrabold text-slate-800 dark:text-slate-200 text-sm group-hover:text-blue-600 transition-colors">{c.name}</p>
-                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{c.branch}</p>
+                              <td className="px-6 md:px-8 py-4 md:py-6">
+                                 <div className="space-y-0.5 md:space-y-1">
+                                    <p className="font-extrabold text-slate-800 dark:text-slate-200 text-xs md:text-sm group-hover:text-blue-600 transition-colors">{c.name}</p>
+                                    <p className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{c.branch}</p>
                                  </div>
                               </td>
-                              <td className="px-4 py-6 text-center">
-                                 <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-none rounded-xl px-3 py-1.5 text-[9px] font-black uppercase tracking-tighter">{c.status}</Badge>
+                              <td className="px-2 md:px-4 py-4 md:py-6 text-center">
+                                 <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-none rounded-lg md:rounded-xl px-2 py-1 md:px-3 md:py-1.5 text-[8px] md:text-[9px] font-black uppercase tracking-tighter">{c.status}</Badge>
                               </td>
-                              <td className="px-4 py-6">
-                                 <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
-                                    <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{c.bottleneck}</p>
+                              <td className="px-2 md:px-4 py-4 md:py-6">
+                                 <div className="flex items-center gap-1.5 md:gap-2">
+                                    <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+                                    <p className="text-[10px] md:text-xs font-bold text-rose-600 dark:text-rose-400 truncate max-w-[100px] md:max-w-none">{c.bottleneck}</p>
                                  </div>
                               </td>
-                              <td className="px-8 py-6 text-right">
+                              <td className="hidden sm:table-cell px-8 py-6 text-right">
                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Admin Ops</p>
                               </td>
                            </tr>
                         ))}
                         {cpmiList.filter(c => c.bottleneck).length === 0 && (
                            <tr>
-                              <td colSpan={4} className="px-8 py-16 text-center">
-                                 <div className="flex flex-col items-center gap-3 opacity-30">
-                                    <Users size={40} className="text-slate-300 dark:text-slate-600" />
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sistem Berjalan Lancar &bull; Tanpa Kendala</p>
+                              <td colSpan={4} className="px-8 py-10 md:py-16 text-center">
+                                 <div className="flex flex-col items-center gap-2 md:gap-3 opacity-30">
+                                    <Users size={32} className="text-slate-300 dark:text-slate-600" />
+                                    <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">P3MI System &bull; Tanpa Kendala</p>
                                  </div>
                               </td>
                            </tr>
@@ -280,43 +292,43 @@ export const Dashboard: React.FC<DashboardProps> = ({
          </Card>
 
          {/* Today's Cashflow */}
-         <Card className="rounded-[2.5rem] border-none bg-slate-900 dark:bg-black/40 shadow-2xl shadow-blue-900/20 overflow-hidden text-white ring-1 ring-slate-800">
-            <CardHeader className="p-8 pb-6 border-b border-slate-800/50">
-               <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-900/40">
-                     <Wallet size={24} />
+         <Card className="rounded-[1.5rem] md:rounded-[2.5rem] border-none bg-slate-900 dark:bg-black/40 shadow-2xl shadow-blue-900/20 overflow-hidden text-white ring-1 ring-slate-800">
+            <CardHeader className="p-6 md:p-8 pb-4 md:pb-6 border-b border-slate-800/50">
+               <div className="flex items-center gap-3 md:gap-4">
+                  <div className="p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-900/40">
+                     <Wallet size={20} />
                   </div>
                   <div>
-                     <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-200">Financial Ledger</CardTitle>
-                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Summary Aliran Kas Harian</p>
+                     <CardTitle className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] text-slate-200">Financial Ledger</CardTitle>
+                     <p className="text-[8px] md:text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Summary Aliran Kas Harian</p>
                   </div>
                </div>
             </CardHeader>
-            <CardContent className="p-8 space-y-8">
-               <div className="space-y-2">
-                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <CardContent className="p-6 md:p-8 space-y-6 md:space-y-8">
+               <div className="space-y-1 md:space-y-2">
+                  <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 md:gap-2">
+                     <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-emerald-500"></div>
                      Total Kas Masuk
                   </div>
-                  <p className="text-3xl font-black font-mono text-emerald-400 tracking-tighter">{formatCurrency(transactions.filter(t => t.type === 'INCOME').reduce((a, b) => a + b.amount, 0))}</p>
+                  <p className="text-xl md:text-3xl font-black font-mono text-emerald-400 tracking-tighter">{formatCurrency(transactions.filter(t => t.type === 'INCOME').reduce((a, b) => a + b.amount, 0))}</p>
                </div>
-               <div className="space-y-2">
-                  <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                     <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+               <div className="space-y-1 md:space-y-2">
+                  <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5 md:gap-2">
+                     <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-rose-500"></div>
                      Total Kas Keluar
                   </div>
-                  <p className="text-3xl font-black font-mono text-rose-400 tracking-tighter">{formatCurrency(transactions.filter(t => t.type === 'EXPENSE').reduce((a, b) => a + b.amount, 0))}</p>
+                  <p className="text-xl md:text-3xl font-black font-mono text-rose-400 tracking-tighter">{formatCurrency(transactions.filter(t => t.type === 'EXPENSE').reduce((a, b) => a + b.amount, 0))}</p>
                </div>
-               <div className="pt-8 border-t border-slate-800/80 flex items-center justify-between">
-                  <div className="space-y-1">
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Sisa Saldo Operasional</p>
-                     <p className="text-xl font-black font-mono text-blue-400 tracking-tighter">{formatCurrency(stats.profit)}</p>
+               <div className="pt-6 md:pt-8 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="space-y-0.5 md:space-y-1">
+                     <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest">Sisa Saldo Operasional</p>
+                     <p className="text-lg md:text-xl font-black font-mono text-blue-400 tracking-tighter">{formatCurrency(stats.profit)}</p>
                   </div>
-                  <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-[1.5rem] border border-emerald-500/20">
-                     <TrendingUp size={32} />
+                  <div className="p-3 md:p-4 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20">
+                     <TrendingUp size={24} />
                   </div>
                </div>
-               <Button onClick={onReport} className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-xs rounded-3xl shadow-2xl shadow-blue-900/40 transition-all active:scale-95 group">
+               <Button onClick={onReport} className="w-full h-14 md:h-16 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-[10px] md:text-xs rounded-[1rem] md:rounded-3xl shadow-2xl shadow-blue-900/40 transition-all active:scale-95 group">
                   Audit Mutasi Kas
                   <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                </Button>
@@ -328,18 +340,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
 };
 
 const StatCard = ({ title, value, subtitle, icon, color }: { title: string, value: string | number, subtitle: string, icon: React.ReactNode, color: string }) => (
-  <Card className="rounded-[1.5rem] md:rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-lg md:shadow-xl shadow-slate-200/40 dark:shadow-black/40 ring-1 ring-slate-100 dark:ring-slate-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden group">
+  <Card className="rounded-[1.25rem] md:rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-lg md:shadow-xl shadow-slate-200/40 dark:shadow-black/40 ring-1 ring-slate-100 dark:ring-slate-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden group">
     <CardContent className="p-4 md:p-8">
-      <div className="flex items-center justify-between mb-3 md:mb-6">
+      <div className="flex items-center justify-between mb-2 md:mb-6">
         <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 ${color}`}>
           {React.cloneElement(icon as React.ReactElement, { size: 18 })}
         </div>
-        <div className="text-right">
-          <p className="text-[7px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400 dark:text-slate-500">{title}</p>
+        <div className="text-right hidden sm:block">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{title}</p>
         </div>
       </div>
-      <h3 className="text-lg md:text-3xl font-black font-display tabular-nums text-slate-900 dark:text-white tracking-tight leading-none">{value}</h3>
-      <p className="text-[7px] md:text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-wide mt-2">{subtitle}</p>
+      <div className="space-y-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500 sm:hidden">{title}</p>
+        <h3 className="text-lg md:text-3xl font-black font-display tabular-nums text-slate-900 dark:text-white tracking-tight leading-none truncate">{value}</h3>
+      </div>
+      <p className="text-[9px] md:text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-wide mt-2">{subtitle}</p>
     </CardContent>
   </Card>
 );

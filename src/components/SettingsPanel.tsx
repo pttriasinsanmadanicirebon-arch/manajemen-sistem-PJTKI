@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Badge } from './ui/badge';
 import { Building2, Save, Globe, Phone, MapPin, User, LogOut, Camera, Loader2 } from 'lucide-react';
 
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';

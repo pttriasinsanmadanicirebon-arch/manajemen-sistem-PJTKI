@@ -20,6 +20,7 @@ import { SponsorList } from './components/SponsorList';
 import { SponsorModal } from './components/SponsorModal';
 import { SettingsPanel } from './components/SettingsPanel';
 import { ReportsPanel } from './components/ReportsPanel';
+import { UserManagement } from './components/UserManagement';
 
 export default function App() {
   const [user] = useAuthState(auth);
@@ -117,10 +118,31 @@ export default function App() {
     collection(db, 'sponsors')
   );
 
-  const cpmiList = useMemo(() => cpmiSnapshot?.docs.map(d => ({ ...d.data(), id: d.id } as CPMI)) || [], [cpmiSnapshot]);
-  const allTransactions = useMemo(() => transactionsSnapshot?.docs.map(d => ({ ...d.data(), id: d.id } as Transaction)) || [], [transactionsSnapshot]);
+  const [usersSnapshot] = useCollection(
+    userProfile?.role === 'SUPER_ADMIN' ? collection(db, 'users') : null
+  );
+
+  const cpmiList = useMemo(() => {
+    let list = cpmiSnapshot?.docs.map(d => ({ ...d.data(), id: d.id } as CPMI)) || [];
+    if (userProfile && userProfile.role !== 'SUPER_ADMIN' && userProfile.cabang) {
+      list = list.filter(item => item.branch === userProfile.cabang);
+    }
+    return list;
+  }, [cpmiSnapshot, userProfile]);
+
+  const allTransactions = useMemo(() => {
+    let list = transactionsSnapshot?.docs.map(d => ({ ...d.data(), id: d.id } as Transaction)) || [];
+    if (userProfile && userProfile.role !== 'SUPER_ADMIN' && userProfile.cabang) {
+      // Filter transactions related to CPMI in this branch
+      const branchCpmiIds = new Set(cpmiList.map(c => c.id));
+      list = list.filter(t => branchCpmiIds.has(t.cpmiId));
+    }
+    return list;
+  }, [transactionsSnapshot, userProfile, cpmiList]);
+
   const allDocs = useMemo(() => docsSnapshot?.docs.map(d => ({ ...d.data(), id: d.id } as CPMIDocument)) || [], [docsSnapshot]);
   const sponsors = useMemo(() => sponsorsSnapshot?.docs.map(d => ({ ...d.data(), id: d.id } as Sponsor)) || [], [sponsorsSnapshot]);
+  const users = useMemo(() => usersSnapshot?.docs.map(d => ({ ...d.data(), uid: d.id } as UserProfile)) || [], [usersSnapshot]);
 
   const handleUpdateStatus = async (id: string, status: CPMIStatus) => {
     try {
@@ -229,6 +251,24 @@ export default function App() {
     }
   };
 
+  const handleUpdateUserProfile = async (uid: string, data: Partial<UserProfile>) => {
+    try {
+      await updateDoc(doc(db, 'users', uid), data);
+      toast.success("User configuration updated");
+    } catch (e) {
+      toast.error("Failed to update user");
+    }
+  };
+
+  const handleDeleteUser = async (uid: string) => {
+    try {
+      await updateDoc(doc(db, 'users', uid), { role: 'SPONSOR', cabang: 'TIDAK AKTIF' });
+      toast.info("User access revoked");
+    } catch (e) {
+      toast.error("Failed to revoke access");
+    }
+  };
+
   const handlePrintReport = () => {
     setActiveTab('reports');
   };
@@ -255,7 +295,7 @@ export default function App() {
   };
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab} systemSettings={systemSettings}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} systemSettings={systemSettings} userProfile={userProfile}>
       <Toaster position="top-center" expand={true} richColors />
       
       {selectedCPMI ? (
@@ -282,6 +322,7 @@ export default function App() {
               onAddCPMI={() => setIsCPMIModalOpen(true)}
               onAddTransaction={() => setIsTransactionModalOpen(true)}
               onReport={handlePrintReport}
+              systemSettings={systemSettings}
             />
           )}
           {activeTab === 'cpmi' && (
@@ -334,6 +375,14 @@ export default function App() {
                 userProfile={userProfile}
                 logout={logout}
              />
+          )}
+          {activeTab === 'users' && userProfile?.role === 'SUPER_ADMIN' && (
+            <UserManagement 
+              users={users} 
+              onUpdateUser={handleUpdateUserProfile}
+              onDeleteUser={handleDeleteUser}
+              currentUser={userProfile}
+            />
           )}
         </>
       )}

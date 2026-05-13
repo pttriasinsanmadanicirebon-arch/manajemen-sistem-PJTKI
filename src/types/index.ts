@@ -102,6 +102,18 @@ export interface CPMI {
   createdBy: string;
   createdAt: any;
   updatedAt: any;
+  
+  // Document URLs
+  ktpUrl?: string;
+  kkUrl?: string;
+  akteUrl?: string;
+  ijazahUrl?: string;
+  suratIjinUrl?: string;
+  pasporUrl?: string;
+  mcuUrl?: string;
+  skckUrl?: string; // Berkas Pendukung Lainnya
+  visaUrl?: string;
+  pkUrl?: string;
 }
 
 export type DocumentStatus = 'Pending' | 'Verified' | 'Rejected';

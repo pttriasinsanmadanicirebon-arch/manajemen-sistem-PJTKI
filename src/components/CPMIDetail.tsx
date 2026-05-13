@@ -82,7 +82,7 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
     return amount;
   };
 
-  const requiredDocTypes: string[] = ["KTP", "KK", "Akte Kelahiran", "Ijazah", "Paspor", "Medical", "Perjanjian Penempatan"];
+  const requiredDocTypes: string[] = ["KTP", "KK", "Akte Kelahiran", "Ijazah", "Paspor", "Medical", "Perjanjian Penempatan", "Berkas Pendukung Lainnya"];
 
   const handleDownloadProfile = () => {
     const profileData = [
@@ -322,55 +322,55 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 no-print">
-        <div className="flex items-center space-x-6">
-          <Button variant="ghost" size="icon" onClick={onBack} className="rounded-2xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-800 h-12 w-12 shrink-0">
-            <ArrowLeft size={24} />
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 mb-8 no-print transition-all">
+        <div className="flex items-center space-x-4 md:space-x-6 w-full">
+          <Button variant="ghost" size="icon" onClick={onBack} className="rounded-xl md:rounded-2xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-800 h-10 w-10 md:h-12 md:w-12 shrink-0">
+            <ArrowLeft size={20} className="md:w-6 md:h-6" />
           </Button>
-          <div className="flex-1 flex items-center gap-6">
+          <div className="flex-1 flex items-center gap-4 md:gap-6 overflow-hidden">
             {cpmi.photoUrl ? (
-               <div className="relative group">
-                  <img src={cpmi.photoUrl} alt={cpmi.name} className="w-20 h-24 md:w-24 md:h-32 object-cover rounded-2xl shadow-xl ring-4 ring-white dark:ring-slate-900 shrink-0" />
-                  <div className="absolute inset-0 rounded-2xl ring-1 ring-black/5 dark:ring-white/10 pointer-events-none"></div>
+               <div className="relative group shrink-0">
+                  <img src={cpmi.photoUrl} alt={cpmi.name} className="w-14 h-16 md:w-24 md:h-32 object-cover rounded-xl md:rounded-2xl shadow-lg ring-2 ring-white dark:ring-slate-900" />
+                  <div className="absolute inset-0 rounded-xl md:rounded-2xl ring-1 ring-black/5 dark:ring-white/10 pointer-events-none"></div>
                </div>
             ) : (
-               <div className="w-20 h-24 md:w-24 md:h-32 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-300 dark:text-slate-700 shrink-0 border-2 border-dashed border-slate-200 dark:border-slate-800">
-                  <User size={40} />
+               <div className="w-14 h-16 md:w-24 md:h-32 rounded-xl md:rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-300 dark:text-slate-700 shrink-0 border-2 border-dashed border-slate-200 dark:border-slate-800">
+                  <User size={24} className="md:w-10 md:h-10" />
                </div>
             )}
-            <div>
-              <div className="flex flex-wrap items-center gap-3">
-                 <h2 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white font-display uppercase">{cpmi.name}</h2>
-                 <Badge className="bg-blue-600 text-white border-none px-4 py-1 text-[10px] font-bold uppercase tracking-widest shadow-md shadow-blue-200 dark:shadow-blue-900/40 font-mono">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                 <h2 className="text-lg md:text-3xl font-black tracking-tight text-slate-900 dark:text-white font-display uppercase truncate max-w-[150px] sm:max-w-none">{cpmi.name}</h2>
+                 <Badge className="bg-blue-600 text-white border-none px-2 py-0.5 md:px-4 md:py-1 text-[8px] md:text-[10px] font-bold uppercase tracking-widest shadow-md font-mono shrink-0">
                    {cpmi.status}
                  </Badge>
               </div>
-              <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">
-                 Reg: <span className="font-mono text-slate-700 dark:text-slate-300 font-bold">{cpmi.regNo}</span> | Cabang: <span className="text-slate-700 dark:text-slate-300 font-bold">{cpmi.branch || 'Pusat'}</span>
+              <p className="text-[10px] md:text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate uppercase tracking-tight">
+                 ID: <span className="font-mono text-slate-700 dark:text-slate-300 font-bold">{cpmi.regNo}</span> <span className="hidden sm:inline">| Cabang: <span className="text-slate-700 dark:text-slate-300 font-bold">{cpmi.branch || 'Pusat'}</span></span>
               </p>
             </div>
           </div>
         </div>
-        <div className="flex gap-4 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
            <div className="flex gap-2 w-full md:w-auto">
-              <Button onClick={handlePrintBiodata} variant="outline" className="flex-1 md:flex-none rounded-2xl px-6 h-14 bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 font-bold active:scale-95 transition-all">
-                <Printer size={20} className="mr-2" />
-                PRINT BIODATA
+              <Button onClick={handlePrintBiodata} variant="outline" className="flex-1 md:flex-none rounded-xl md:rounded-2xl px-3 md:px-6 h-10 md:h-14 bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 font-bold text-[10px] md:text-sm active:scale-95 transition-all">
+                <Printer size={16} className="mr-1.5 md:mr-2" />
+                BIODATA
               </Button>
-              <Button onClick={handleDownloadProfile} variant="default" className="flex-1 md:flex-none rounded-2xl px-6 h-14 bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-xl shadow-emerald-900/20 active:scale-95 transition-all">
-                <Download size={20} className="mr-2" />
+              <Button onClick={handleDownloadProfile} variant="default" className="flex-1 md:flex-none rounded-xl md:rounded-2xl px-3 md:px-6 h-10 md:h-14 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] md:text-sm shadow-lg md:shadow-xl shadow-emerald-900/20 active:scale-95 transition-all">
+                <Download size={16} className="mr-1.5 md:mr-2" />
                 XLSX
               </Button>
            </div>
            <DropdownMenu>
               <DropdownMenuTrigger render={
-                <Button className="flex-1 md:flex-none rounded-2xl px-8 h-14 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 border shadow-sm font-bold active:scale-95 transition-all">
+                <Button className="w-full md:w-auto rounded-xl md:rounded-2xl px-4 md:px-8 h-10 md:h-14 bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white border shadow-sm font-bold text-[10px] md:text-sm active:scale-95 transition-all">
                   Update Status
                 </Button>
               } />
-              <DropdownMenuContent align="end" className="rounded-2xl p-2 w-56 shadow-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <DropdownMenuContent align="end" className="rounded-2xl p-2 w-48 md:w-56 shadow-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
                  {['Baru', 'Interview', 'MCU', 'MCU Fit', 'Paspor', 'PK', 'Visa', 'Ready Terbang', 'Terbang', 'Cancel'].map((s) => (
-                    <DropdownMenuItem key={s} onClick={() => onUpdateStatus(s as any)} className="rounded-xl py-3.5 font-bold text-[11px] uppercase tracking-wider focus:bg-blue-600 focus:text-white cursor-pointer mb-0.5">
+                    <DropdownMenuItem key={s} onClick={() => onUpdateStatus(s as any)} className="rounded-xl py-2.5 md:py-3.5 font-bold text-[9px] md:text-[11px] uppercase tracking-wider focus:bg-blue-600 focus:text-white cursor-pointer mb-0.5">
                       {s}
                     </DropdownMenuItem>
                  ))}
@@ -379,39 +379,39 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-8 no-print">
+      <div className="flex flex-col gap-6 md:gap-8 no-print">
         {/* Left Column: CPMI Info & Financials - Now Full Width */}
-        <section className="w-full flex flex-col gap-8">
+        <section className="w-full flex flex-col gap-6 md:gap-8">
           {/* Fee Tracking Dashboard */}
-          <Card className="rounded-[2.5rem] border-none bg-slate-900 dark:bg-slate-900/50 shadow-2xl shadow-blue-900/20 overflow-hidden ring-1 ring-white/5">
-            <CardHeader className="px-10 py-8 border-b border-white/5">
+          <Card className="rounded-[1.5rem] md:rounded-[2.5rem] border-none bg-slate-900 dark:bg-slate-900/50 shadow-2xl shadow-blue-900/20 overflow-hidden ring-1 ring-white/5">
+            <CardHeader className="px-6 py-5 md:px-10 md:py-8 border-b border-white/5">
                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400">Tracking Fee Proses</CardTitle>
-                    <p className="text-xs text-slate-500 font-medium italic">Breakdown pengeluaran operasional pekerja</p>
+                  <div className="space-y-0.5 md:space-y-1">
+                    <CardTitle className="text-[10px] md:text-sm font-bold uppercase tracking-widest text-slate-400">Tracking Biaya Operasional</CardTitle>
+                    <p className="text-[8px] md:text-xs text-slate-500 font-medium italic">Akumulasi pengeluaran atas nama pekerja</p>
                   </div>
-                  <Badge className="bg-blue-600/20 text-blue-400 border-blue-400/30 px-4 py-1.5 rounded-full font-bold text-[10px]">REALTIME SYNC</Badge>
+                  <Badge className="hidden sm:inline-flex bg-blue-600/20 text-blue-400 border-blue-400/30 px-3 py-1 rounded-full font-bold text-[9px]">ENCRYPTED DATA</Badge>
                </div>
             </CardHeader>
-            <CardContent className="p-10">
-               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <CardContent className="p-6 md:p-10">
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                   {feeCategories.map((fee) => {
                     const amount = getFeeStatus(fee.key);
                     const isPaid = amount > 0;
                     return (
-                      <div key={fee.key} className={`group relative p-5 rounded-3xl border transition-all duration-300 ${isPaid ? 'bg-white/10 border-emerald-500/30 shadow-lg shadow-emerald-500/5' : 'bg-slate-800/40 border-white/5 hover:border-blue-500/30 hover:bg-slate-800/60'}`}>
-                         <div className="flex flex-col gap-3">
+                      <div key={fee.key} className={`group relative p-3 md:p-5 rounded-2xl md:rounded-3xl border transition-all duration-300 ${isPaid ? 'bg-white/10 border-emerald-500/30 shadow-lg' : 'bg-slate-800/40 border-white/5 hover:border-blue-500/30 hover:bg-slate-800/60'}`}>
+                         <div className="flex flex-col gap-1.5 md:gap-3">
                             <div className="flex justify-between items-center">
-                               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{fee.label}</p>
+                               <p className="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest truncate">{fee.label}</p>
                                {isPaid ? (
-                                 <CheckCircle2 size={14} className="text-emerald-500" />
+                                 <CheckCircle2 size={12} className="text-emerald-500" />
                                ) : (
-                                 <div className="w-1.5 h-1.5 rounded-full bg-slate-700 animate-pulse"></div>
+                                 <div className="w-1 h-1 rounded-full bg-slate-700"></div>
                                )}
                             </div>
-                            <div className="space-y-0.5">
-                               <p className={`text-sm font-black ${isPaid ? 'text-white' : 'text-slate-600'}`}>{formatCurrency(amount)}</p>
-                               <p className="text-[8px] font-bold text-slate-500 uppercase">{isPaid ? 'Verified' : 'Belum Diajukan'}</p>
+                            <div className="space-y-0">
+                               <p className={`text-xs md:text-sm font-black tracking-tight ${isPaid ? 'text-white' : 'text-slate-600'}`}>{formatCurrency(amount)}</p>
+                               <p className="text-[7px] md:text-[8px] font-bold text-slate-500 uppercase">{isPaid ? 'Paid' : 'Unpaid'}</p>
                             </div>
                          </div>
                       </div>
@@ -419,97 +419,96 @@ export const CPMIDetail: React.FC<CPMIDetailProps> = ({
                   })}
                </div>
 
-               <div className="mt-10 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="flex gap-8">
-                     <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Terpakai</p>
-                        <p className="text-2xl font-black text-white">{formatCurrency(totalExpense)}</p>
+               <div className="mt-6 md:mt-10 pt-6 md:pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex gap-6 md:gap-8 w-full justify-between sm:justify-start">
+                     <div className="space-y-0.5 md:space-y-1">
+                        <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Expense</p>
+                        <p className="text-lg md:text-2xl font-black text-white">{formatCurrency(totalExpense)}</p>
                      </div>
-                     <div className="space-y-1">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pemasukan / Deposit</p>
-                        <p className="text-2xl font-black text-emerald-400">{formatCurrency(totalIncome)}</p>
+                     <div className="space-y-0.5 md:space-y-1">
+                        <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pemasukan / Deposit</p>
+                        <p className="text-lg md:text-2xl font-black text-emerald-400">{formatCurrency(totalIncome)}</p>
                      </div>
                   </div>
-                  <Button onClick={onAddTransaction} className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-12 py-8 h-auto shadow-2xl shadow-blue-900/40 font-bold transition-all active:scale-95 border-none">
-                     <DollarSign size={22} className="mr-3" />
-                     INPUT BIAYA PROSES
+                  <Button onClick={onAddTransaction} className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white rounded-xl md:rounded-2xl px-6 md:px-12 py-4 h-12 md:h-20 shadow-xl shadow-blue-900/40 font-black text-[9px] md:text-xs uppercase tracking-widest transition-all active:scale-95 border-none">
+                     <DollarSign size={18} className="mr-2 md:mr-3" />
+                     INPUT KEUANGAN
                   </Button>
                </div>
             </CardContent>
           </Card>
 
-          <Card className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 overflow-hidden">
-            <CardHeader className="bg-slate-50/50 dark:bg-black/20 border-b border-slate-100 dark:border-slate-800 px-10 py-6">
-              <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Biodata & Administrasi</CardTitle>
+          <Card className="rounded-[1.5rem] md:rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-200/60 dark:ring-slate-800 overflow-hidden">
+            <CardHeader className="bg-slate-50/50 dark:bg-black/20 border-b border-slate-100 dark:border-slate-800 px-6 py-4 md:px-10 md:py-6">
+              <CardTitle className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Informasi Profil Lengkap</CardTitle>
             </CardHeader>
-            <CardContent className="p-10 space-y-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                       <User size={18} />
+            <CardContent className="p-6 md:p-10 space-y-8 md:space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                       <User size={16} className="md:w-[18px] md:h-[18px]" />
                     </div>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-widest">Detail Identitas</h4>
+                    <h4 className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-widest">Biodata Diri</h4>
                   </div>
-                  <div className="grid grid-cols-1 gap-5 pl-1">
-                    <DetailItem label="NIK" value={cpmi.nik} isMono />
+                  <div className="grid grid-cols-1 gap-4 md:gap-5 pl-1">
+                    <DetailItem label="NIK / KTP" value={cpmi.nik} isMono />
                     <DetailItem label="Nomor Paspor" value={cpmi.passportNo} isMono isBold />
                     <DetailItem label="TTL" value={`${cpmi.birthPlace}, ${cpmi.birthDate}`} />
-                    <DetailItem label="Alamat Domisili" value={cpmi.address} />
-                    <DetailItem label="Kontak Keluarga" value={cpmi.familyContact} />
-                    <DetailItem label="Pendidikan Terakhir" value={cpmi.education} />
-                    <DetailItem label="Sponsor" value={cpmi.sponsor} isBold />
+                    <DetailItem label="Alamat KTP" value={cpmi.address} />
+                    <DetailItem label="Kontak CPMI (HP)" value={cpmi.phone} isBold />
+                    <DetailItem label="Sponsor Lapangan" value={cpmi.sponsor} isBold />
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                       <Briefcase size={18} />
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                       <Briefcase size={16} className="md:w-[18px] md:h-[18px]" />
                     </div>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-widest">Job Penempatan</h4>
+                    <h4 className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-widest">Data Penempatan</h4>
                   </div>
-                  <div className="grid grid-cols-1 gap-5 pl-1">
-                    <DetailItem label="Negara Tujuan" value={cpmi.targetCountry} isBold />
-                    <DetailItem label="Jenis Pekerjaan" value={cpmi.jobType} />
-                    <DetailItem label="Agency / Majikan" value={cpmi.agency} />
-                    <DetailItem label="Renc. Tgl Terbang" value={cpmi.flightDate} isBold />
-                    <DetailItem label="Tgl Pendaftaran" value={cpmi.registrationDate} />
+                  <div className="grid grid-cols-1 gap-4 md:gap-5 pl-1">
+                    <DetailItem label="Negara Penempatan" value={cpmi.targetCountry} isBold />
+                    <DetailItem label="Sektor & Jabatan" value={`${cpmi.sector || '-'} / ${cpmi.jobType}`} />
+                    <DetailItem label="Agency" value={cpmi.agency} />
+                    <DetailItem label="Estimasi Keberangkatan" value={cpmi.flightDate} isBold />
+                    <DetailItem label="Tanggal Masuk" value={cpmi.registrationDate} />
                   </div>
                 </div>
               </div>
               
-              <div className="pt-10 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-10">
-                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                       <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Kelengkapan Berkas Fisik</h4>
+              <div className="pt-6 md:pt-10 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+                 <div className="space-y-4 md:space-y-6">
+                    <div className="flex items-center justify-between mb-2">
+                       <h4 className="text-[9px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Master Berkas Fisik</h4>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2 md:gap-3">
                        {Object.entries(cpmi.completeness).map(([key, value]) => (
-                         <div key={key} className="flex items-center space-x-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 transition-all hover:bg-white dark:hover:bg-slate-800">
+                         <div key={key} className="flex items-center space-x-2.5 p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 transition-all hover:ring-1 hover:ring-blue-500/30">
                            <Checkbox 
                              id={key} 
                              checked={value as boolean} 
                              onCheckedChange={(v) => onUpdateCompleteness(key as any, !!v)} 
-                             className="rounded-lg h-5 w-5 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                             className="rounded h-4 w-4 md:h-5 md:w-5 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
                            />
-                           <Label htmlFor={key} className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight cursor-pointer">{key}</Label>
+                           <Label htmlFor={key} className="text-[8.5px] md:text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight cursor-pointer truncate">{key}</Label>
                          </div>
                        ))}
                     </div>
                  </div>
 
-                 <div className="space-y-6 bg-slate-50 dark:bg-slate-950 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-inner">
+                 <div className="space-y-4 md:space-y-6 bg-slate-50 dark:bg-slate-950 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-inner">
                     <div className="flex items-center gap-2">
-                       <AlertCircle size={18} className="text-rose-500" />
-                       <h4 className="text-[10px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-widest">Hutang & Talangan</h4>
+                       <AlertCircle size={16} className="text-rose-500 md:w-[18px] md:h-[18px]" />
+                       <h4 className="text-[9px] md:text-[10px] font-black text-slate-900 dark:text-slate-200 uppercase tracking-widest">Financial Outstanding</h4>
                     </div>
-                    <div className="space-y-4">
-                       <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Hutang</p>
-                          <p className="text-xl font-bold text-rose-600 dark:text-rose-500">{formatCurrency(cpmi.totalDebt || 0)}</p>
+                    <div className="space-y-3 md:space-y-4">
+                       <div className="bg-white dark:bg-slate-900 p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                          <p className="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sisa Hutang / Pinjaman</p>
+                          <p className="text-lg md:text-xl font-black text-rose-600 dark:text-rose-500 tracking-tighter">{formatCurrency(cpmi.totalDebt || 0)}</p>
                        </div>
-                       <Button variant="outline" className="w-full h-14 rounded-2xl text-xs font-bold border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 active:scale-95 transition-all">
-                          CATAT CICILAN HUTANG
+                       <Button variant="outline" className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl text-[10px] font-black uppercase border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 active:scale-95 transition-all">
+                          MANAGE INSTALLMENT
                        </Button>
                     </div>
                  </div>
